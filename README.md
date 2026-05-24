@@ -1,5 +1,8 @@
 # Product Intelligence Dashboard
 
+![Dashboard Overview](https://raw.githubusercontent.com/artorias-66/product-intelligence-dashboard/master/frontend/public/favicon.svg)
+*(Please replace the image link above with a real screenshot of your dashboard!)*
+
 A full-stack, AI-powered platform for automated e-commerce product extraction, validation, and competitor pricing analysis.
 
 ---
@@ -50,11 +53,12 @@ You must have **Docker** and **Docker Compose** installed on your machine.
    ```
 
 2. **Configure Environment Variables:**
-   Create a `.env` file inside the `backend/` directory and add your keys:
+   Create a `.env` file inside the `backend/` directory and add your keys. 
+   **IMPORTANT:** To run the AI extraction locally, you must generate and provide your own personal Google Gemini API key.
    ```env
    DATABASE_URL=postgresql://<user>:<password>@<neon-host>/neondb?sslmode=require
-   GEMINI_API_KEY=your_gemini_api_key
-   ANTHROPIC_API_KEY=your_anthropic_api_key
+   GEMINI_API_KEY=your_personal_gemini_api_key_here
+   ANTHROPIC_API_KEY=your_anthropic_api_key  # Optional fallback
    ```
 
 3. **Spin up the Containers:**
@@ -72,6 +76,7 @@ You must have **Docker** and **Docker Compose** installed on your machine.
 
 1. **Dashboard (`/`)**: View high-level metrics, active alerts, and quality score distribution.
 2. **Upload (`/upload`)**: Upload a `.mp4` video or a `.csv` product feed. Toggle the **"Enhance Product Title"** flag if you want the LLM to generate SEO-optimized variants.
+   * **Sample Files**: We have provided sample product videos and mock CSV data for your testing convenience inside the `backend/sample` directory!
 3. **Jobs (`/jobs`)**: Monitor the asynchronous processing status. If a video extraction fails (e.g., OCR fails), the job enters a `PENDING_REVIEW` state where you can manually intervene.
 4. **Products (`/products`)**: Filter, search, and view all ingested products. Click a product to see its **Competitor Price History** (visualized via Recharts) and recommended items.
 5. **Alerts (`/alerts`)**: Review missing descriptions, low prices, or category anomalies flagged by the validation engine. Click an alert to jump directly to the product.
@@ -112,6 +117,7 @@ The relational database is built on PostgreSQL with the following core entities:
 *   **Database & Validations**: The Neon Postgres database is fully persistent. All quality scores, alerts, and schema validations are calculated in real-time.
 *   **Title Enhancement**: The LLM actively generates SEO-optimized titles dynamically based on your toggle.
 *   **Asynchronous Processing**: Background jobs actually process data asynchronously, utilizing polling on the frontend.
+*   **Server Keep-Alive**: We successfully circumvented Render's 15-minute sleep limitation programmatically by implementing a GitHub Action cron job (`keep-alive.yml`) that pings the server 24/7.
 
 **Mocked / Simulated:**
 *   **Competitor Pricing**: Live web-scraping Amazon/Myntra is legally complex and unstable for a demo. Competitor data is simulated using randomized realistic data populated via the DB seeder and CSV uploads.
