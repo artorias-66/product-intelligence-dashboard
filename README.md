@@ -72,14 +72,42 @@ You must have **Docker** and **Docker Compose** installed on your machine.
 
 ---
 
-## 📖 How to Use the Deployed App
+## 📸 Application Walkthrough
 
-1. **Dashboard (`/`)**: View high-level metrics, active alerts, and quality score distribution.
-2. **Upload (`/upload`)**: Upload a `.mp4` video or a `.csv` product feed. Toggle the **"Enhance Product Title"** flag if you want the LLM to generate SEO-optimized variants.
-   * **Sample Files**: We have provided sample product videos and mock CSV data for your testing convenience inside the `backend/sample` directory!
-3. **Jobs (`/jobs`)**: Monitor the asynchronous processing status. If a video extraction fails (e.g., OCR fails), the job enters a `PENDING_REVIEW` state where you can manually intervene.
-4. **Products (`/products`)**: Filter, search, and view all ingested products. Click a product to see its **Competitor Price History** (visualized via Recharts) and recommended items.
-5. **Alerts (`/alerts`)**: Review missing descriptions, low prices, or category anomalies flagged by the validation engine. Click an alert to jump directly to the product.
+Our platform provides a complete end-to-end workflow from video upload to competitor price alerts.
+
+### 1. Dashboard & Quality Analytics
+Get a birds-eye view of your entire product catalog, overall listing quality scores, and active anomaly alerts.
+![Dashboard Overview](frontend/public/1.png)
+![Quality Metrics](frontend/public/2.png)
+
+### 2. Video Ingestion & Async Processing
+Upload a product video (or fallback CSV) and toggle the AI Title Enhancement flag. The system asynchronously processes the video using OpenCV frame extraction and Tesseract OCR.
+![Video Upload](frontend/public/product_video.png)
+![Job Processing](frontend/public/3.png)
+
+### 3. AI Extraction & Review
+The system extracts product details from the video. If the AI confidence is low, it triggers a "Pending Review" state for manual human intervention.
+![Extraction Review](frontend/public/4.png)
+
+### 4. AI Title Enhancement & Product Details
+If enabled, our Hybrid AI Pipeline (Groq LPU + Gemini) automatically generates SEO-optimized product titles based on extracted attributes and market trend keywords.
+![AI Enhancement](frontend/public/5.png)
+![Product Details](frontend/public/6.png)
+
+### 5. Product Catalog & Filtering
+View your entire validated product catalog with powerful filtering by category, severity, and stock status.
+![Product List](frontend/public/7.png)
+
+### 6. Competitor Pricing Analysis
+Track historical pricing trends against competitors like Amazon and Myntra to identify pricing gaps and actionable opportunities.
+![Competitor Prices](frontend/public/8.png)
+
+### 7. Automated Alert Generation
+The validation engine automatically flags issues (e.g., Missing descriptions, low prices, or category anomalies) with associated severity levels.
+![Alert Popup](frontend/public/alert.png)
+![Alerts Dashboard](frontend/public/9.png)
+![Alert Details](frontend/public/10.png)
 
 ---
 
