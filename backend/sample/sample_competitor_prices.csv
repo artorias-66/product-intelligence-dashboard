@@ -1,0 +1,17 @@
+sku_id,product_name,platform,competitor_url,competitor_price,currency
+SHOE001,Nike Air Max 270 Men Blue,Amazon,https://amazon.in/shoe001,7499,INR
+SHOE001,Nike Air Max 270 Running Shoes,Myntra,https://myntra.com/shoe001,7799,INR
+SHOE001,Nike Air Max Men Shoes,Ajio,https://ajio.com/shoe001,7299,INR
+SHOE001,Nike Air Max 270,Tata Cliq,https://tatacliq.com/shoe001,7999,INR
+SHOE002,Adidas Ultraboost 22 Black,Amazon,https://amazon.in/shoe002,10999,INR
+SHOE002,Adidas Ultraboost Shoes,Myntra,https://myntra.com/shoe002,11499,INR
+SHOE002,Adidas Ultraboost 22,Ajio,https://ajio.com/shoe002,10799,INR
+DRESS001,Zara Floral Midi Dress,Myntra,https://myntra.com/dress001,3299,INR
+DRESS001,Floral Print Midi Dress,Ajio,https://ajio.com/dress001,3099,INR
+DRESS001,Zara Summer Dress,Nykaa Fashion,https://nykaa.com/dress001,3599,INR
+BAG001,Lavie Tote Bag Women,Amazon,https://amazon.in/bag001,2599,INR
+BAG001,Lavie Tote Handbag,Myntra,https://myntra.com/bag001,2699,INR
+WATCH001,Titan Analog Men Watch,Amazon,https://amazon.in/watch001,4599,INR
+WATCH001,Titan Men Silver Watch,Myntra,https://myntra.com/watch001,4799,INR
+ELEC001,boAt Airdopes 141 TWS,Amazon,https://amazon.in/elec001,1299,INR
+ELEC001,boAt Airdopes 141,Flipkart,https://flipkart.com/elec001,1399,INR

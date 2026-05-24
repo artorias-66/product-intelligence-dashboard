@@ -1,0 +1,124 @@
+import { useLocation, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Search, Bell, Database } from 'lucide-react';
+import { alertsApi, seedApi } from '../../api/client';
+
+const pageTitles = {
+  '/': 'Dashboard',
+  '/upload': 'Upload Data',
+  '/jobs': 'Processing Jobs',
+  '/products': 'Products',
+  '/alerts': 'Alerts',
+  '/competitor-prices': 'Competitor Prices',
+};
+
+function getBreadcrumbs(pathname) {
+  const parts = pathname.split('/').filter(Boolean);
+  const crumbs = [{ label: 'Home', path: '/' }];
+
+  if (parts.length === 0) return crumbs;
+
+  if (parts[0] === 'jobs') {
+    crumbs.push({ label: 'Jobs', path: '/jobs' });
+    if (parts[1]) crumbs.push({ label: `Job ${parts[1].slice(0, 8)}...`, path: pathname });
+  } else if (parts[0] === 'products') {
+    crumbs.push({ label: 'Products', path: '/products' });
+    if (parts[1]) crumbs.push({ label: parts[1], path: pathname });
+  } else {
+    const title = pageTitles[`/${parts[0]}`] || parts[0];
+    crumbs.push({ label: title, path: pathname });
+  }
+
+  return crumbs;
+}
+
+export default function Header() {
+  const location = useLocation();
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [seeding, setSeeding] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const breadcrumbs = getBreadcrumbs(location.pathname);
+  const pageTitle = pageTitles[location.pathname] || 'Detail';
+
+  useEffect(() => {
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchUnread = async () => {
+    try {
+      const res = await alertsApi.getAll({ is_read: false, limit: 1 });
+      const data = res.data;
+      setUnreadCount(data.total ?? data.length ?? 0);
+    } catch {
+      // silently ignore
+    }
+  };
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    try {
+      await seedApi.seed();
+      window.location.reload();
+    } catch (err) {
+      console.error('Seed failed:', err);
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  return (
+    <header className="header">
+      <div className="header-left">
+        <div>
+          <h1 className="header-title">{pageTitle}</h1>
+          <div className="header-breadcrumb">
+            {breadcrumbs.map((crumb, i) => (
+              <span key={i}>
+                {i > 0 && <span className="separator"> / </span>}
+                {i < breadcrumbs.length - 1 ? (
+                  <Link to={crumb.path}>{crumb.label}</Link>
+                ) : (
+                  <span style={{ color: 'var(--text-secondary)' }}>{crumb.label}</span>
+                )}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="header-right">
+        <div className="header-search">
+          <Search className="header-search-icon" size={16} />
+          <input
+            type="text"
+            placeholder="Search products, jobs..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        <button
+          className="header-seed-btn"
+          onClick={handleSeed}
+          disabled={seeding}
+          title="Seed database with sample data"
+        >
+          <Database size={14} />
+          {seeding ? 'Seeding...' : 'Seed DB'}
+        </button>
+
+        <Link to="/alerts" className="header-notification">
+          <Bell size={18} />
+          {unreadCount > 0 && (
+            <span className="header-notification-badge">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </Link>
+      </div>
+    </header>
+  );
+}
