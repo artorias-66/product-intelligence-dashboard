@@ -4,6 +4,8 @@
 
 Built as a complete intern assignment submission: deployed frontend + backend, persistent database, async job processing, and a reviewer-friendly demo flow.
 
+![Dashboard Overview](frontend/public/screenshot.png)
+
 ---
 
 ## Submission at a Glance
@@ -180,19 +182,61 @@ product-intelligence-dashboard/
 
 ---
 
-## Application Walkthrough
+## Application Walkthrough (Screenshots)
 
-Screenshots are in `frontend/public/` on the repository.
+Visual tour of the deployed app — maps directly to the assignment user flow (upload → process → validate → compare → alert).
 
-| Screen | Description |
-|---|---|
-| Dashboard | Quality summary, severity charts, recent alerts, seed button |
-| Upload | Video / CSV / manual entry + title enhancement toggle |
-| Job Detail | Progress bar, extraction review form, approve/retry actions |
-| Products | Filterable catalog by category, score, search |
-| Product Detail | Issues, enhanced title, competitor comparison, price history chart |
-| Competitor Prices | Bulk refresh + CSV upload |
-| Alerts | Severity-filtered notification history with mark-as-read |
+### 1. Dashboard & Quality Analytics
+
+Bird's-eye view of catalog health: total products, average quality score, severity breakdown, and distribution charts.
+
+![Dashboard Overview](frontend/public/1.png)
+![Quality Metrics & Charts](frontend/public/2.png)
+
+### 2. Video & CSV Upload
+
+Upload a product video (primary path), CSV feed (fallback), or manual entry. Toggle **Enhance product title** before submitting.
+
+![Video Upload Form](frontend/public/product_video.png)
+
+### 3. AI Extraction Review
+
+After video upload, the system extracts product data via OpenCV + OCR + AI. Low-confidence results land in **Review Needed** — edit fields before approving.
+
+![Extraction Review — Edit Before Approve](frontend/public/4.png)
+
+### 4. Job Tracking
+
+Monitor async jobs with live progress (0–100%), status badges, and timestamps.
+
+![Jobs List](frontend/public/10.png)
+![Job Processing Progress](frontend/public/3.png)
+
+### 5. Enhanced Titles & Product Detail
+
+When title enhancement is enabled, see original title, extracted attributes, suggested keywords, and the AI-generated enhanced title with reasoning.
+
+![AI Title Enhancement](frontend/public/5.png)
+![Product Detail — Issues & Attributes](frontend/public/6.png)
+
+### 6. Product Catalog
+
+Browse all products with filters for category, quality score, and search. Weak listings surface quickly.
+
+![Product List with Filters](frontend/public/7.png)
+
+### 7. Competitor Price Comparison
+
+Compare Flipkart price against Amazon, Myntra, Ajio, and others. View price gap, recommended action, and historical trends.
+
+![Competitor Price Analysis](frontend/public/8.png)
+![Competitor Price CSV Upload](frontend/public/9.png)
+
+### 8. Alerts & Notifications
+
+In-app alert history for critical listing issues and pricing anomalies, grouped by severity.
+
+![Alerts — Listing & Pricing Issues](frontend/public/alert.png)
 
 ---
 
