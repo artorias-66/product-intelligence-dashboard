@@ -12,7 +12,7 @@ Built as a complete intern assignment submission: deployed frontend + backend, p
 
 | Deliverable | Link |
 |---|---|
-| **Live Frontend** | [https://product-intelligence-dashboard-aw9mqc63r-artorias-66s-projects.vercel.app](https://product-intelligence-dashboard-aw9mqc63r-artorias-66s-projects.vercel.app/) |
+| **Live Frontend** | [https://product-intelligence-dashboard-nine.vercel.app](https://product-intelligence-dashboard-nine.vercel.app/) |
 | **Live Backend API** | [https://product-intelligence-api-dkuo.onrender.com](https://product-intelligence-api-dkuo.onrender.com) |
 | **Interactive API Docs (Swagger)** | [https://product-intelligence-api-dkuo.onrender.com/api/docs](https://product-intelligence-api-dkuo.onrender.com/api/docs) |
 | **GitHub Repository** | [https://github.com/artorias-66/product-intelligence-dashboard](https://github.com/artorias-66/product-intelligence-dashboard) |
@@ -28,7 +28,7 @@ Built as a complete intern assignment submission: deployed frontend + backend, p
 
 This path exercises the full assignment flow without local setup.
 
-1. **Open the dashboard** → [Live Frontend](https://product-intelligence-dashboard-aw9mqc63r-artorias-66s-projects.vercel.app/)
+1. **Open the dashboard** → [Live Frontend](https://product-intelligence-dashboard-nine.vercel.app/)
 2. **Seed sample data** (if the catalog is empty) → Click **Seed Sample Data** on the Dashboard. This loads 25 Flipkart-style products with issues, competitor prices, alerts, and price history.
 3. **Explore quality analytics** → Dashboard shows total products, average quality score, severity breakdown, and quality distribution charts.
 4. **Upload a product video** → Go to **Upload** → use `backend/sample/sample_product_video.mp4` from this repo → enable **Enhance product title** → submit.
@@ -244,7 +244,7 @@ In-app alert history for critical listing issues and pricing anomalies, grouped 
 
 ### First visit
 
-1. Open the [live frontend](https://product-intelligence-dashboard-aw9mqc63r-artorias-66s-projects.vercel.app/).
+1. Open the [live frontend](https://product-intelligence-dashboard-nine.vercel.app/).
 2. If the product list is empty, click **Seed Sample Data** on the Dashboard (calls `POST /api/seed`).
 3. Browse seeded products, alerts, and pricing data immediately.
 
@@ -542,4 +542,9 @@ The seeded dataset (`POST /api/seed`) creates **25 products** (15 healthy, 5 med
 
 ---
 
-Built by [artorias-66](https://github.com/artorias-66) · Product Intelligence Dashboard · Intern Assignment Submission
+## Author
+
+**Anubhav Verma**  
+[LinkedIn](https://www.linkedin.com/in/anubhav-verma-b83787338/) · [GitHub](https://github.com/artorias-66)
+
+Product Intelligence Dashboard — Intern Assignment Submission
