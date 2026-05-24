@@ -97,6 +97,11 @@ export default function Header() {
             placeholder="Search products, jobs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && searchQuery.trim()) {
+                window.location.href = `/products?search=${encodeURIComponent(searchQuery.trim())}`;
+              }
+            }}
           />
         </div>
 
