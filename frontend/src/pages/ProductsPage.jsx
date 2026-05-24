@@ -58,7 +58,8 @@ export default function ProductsPage() {
   const formatPrice = (p) => p != null ? `₹${Number(p).toLocaleString('en-IN')}` : '—';
 
   const handleDownloadReport = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/dashboard/quality-report-csv`;
+    const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://product-intelligence-api-dkuo.onrender.com' : 'http://localhost:8000');
+    window.location.href = `${baseUrl}/api/dashboard/quality-report-csv`;
   };
 
   return (
