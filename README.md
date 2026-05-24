@@ -81,16 +81,13 @@ Get a birds-eye view of your entire product catalog, overall listing quality sco
 ![Dashboard Overview](frontend/public/1.png)
 ![Quality Metrics](frontend/public/2.png)
 
-### 2. Video Ingestion & Async Processing
-Upload a product video (or fallback CSV) and toggle the AI Title Enhancement flag. The system asynchronously processes the video using OpenCV frame extraction and Tesseract OCR.
+### 2. Video Ingestion & AI Extraction Review
+Upload a product video (or fallback CSV) and toggle the AI Title Enhancement flag. The system asynchronously processes the video using OpenCV frame extraction and Tesseract OCR. If the AI confidence is low, it triggers a "Pending Review" state for manual human intervention.
 ![Video Upload](frontend/public/product_video.png)
+![Extraction Review](frontend/public/4.png)
 ![Job Processing](frontend/public/3.png)
 
-### 3. AI Extraction & Review
-The system extracts product details from the video. If the AI confidence is low, it triggers a "Pending Review" state for manual human intervention.
-![Extraction Review](frontend/public/4.png)
-
-### 4. AI Title Enhancement & Product Details
+### 3. AI Title Enhancement & Product Details
 If enabled, our Hybrid AI Pipeline (Groq LPU + Gemini) automatically generates SEO-optimized product titles based on extracted attributes and market trend keywords.
 ![AI Enhancement](frontend/public/5.png)
 ![Product Details](frontend/public/6.png)
