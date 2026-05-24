@@ -200,36 +200,49 @@ def _call_groq_vision(frame_bytes: bytes, ocr_text: str, file_name: str, video_h
 # ── Gemini Vision (Fallback) ─────────────────────────────────────────────────
 
 def _call_gemini_vision(frame_bytes: bytes, ocr_text: str, file_name: str, video_hint: str) -> Optional[list[VideoExtractionResult]]:
-    """Send frame + OCR text to Gemini. Used as fallback when Groq is unavailable."""
-    if not settings.GEMINI_API_KEY:
-        return None
+    """Send frame + OCR text to Gemini 1.5 Flash with retry logic."""
+    import time
+    max_retries = 3
+    base_delay = 5
 
-    try:
-        from google import genai
-        client = genai.Client(api_key=settings.GEMINI_API_KEY)
+    for attempt in range(max_retries):
+        try:
+            from google import genai
+            client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-        b64 = base64.b64encode(frame_bytes).decode("utf-8")
-        prompt = _build_vision_prompt(file_name, ocr_text, video_hint)
+            b64 = base64.b64encode(frame_bytes).decode("utf-8")
+            
+            prompt = _build_vision_prompt(file_name, ocr_text, video_hint)
 
-        print(f"Sending frame + OCR to Gemini {GEMINI_MODEL} (fallback)...")
-        response = client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=[
-                {"inline_data": {"mime_type": "image/jpeg", "data": b64}},
-                prompt
-            ]
-        )
-
-        text = response.text
-        if text:
-            results = _parse_products(text)
-            if results:
-                print(f"Gemini {GEMINI_MODEL} extracted {len(results)} product(s)")
-                return results[:1]
-        return None
-    except Exception as e:
-        print(f"Gemini Vision failed: {e}")
-        return None
+            print(f"Sending frame + OCR to {GEMINI_MODEL}...")
+            response = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=[
+                    {"inline_data": {"mime_type": "image/jpeg", "data": b64}},
+                    prompt
+                ]
+            )
+            
+            text = response.text
+            if text:
+                results = _parse_products(text)
+                if results:
+                    print(f"Gemini {GEMINI_MODEL} extracted {len(results)} product(s)")
+                    return results[:1]
+            return None
+        except Exception as e:
+            err_str = str(e)
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "quota" in err_str.lower():
+                if attempt < max_retries - 1:
+                    sleep_time = base_delay * (2 ** attempt)
+                    print(f"Gemini rate limit hit in Vision. Retrying in {sleep_time}s... (Attempt {attempt+1}/{max_retries})")
+                    time.sleep(sleep_time)
+                    continue
+                else:
+                    print(f"Gemini Vision quota exceeded after {max_retries} attempts.")
+            else:
+                print(f"Gemini Vision failed: {e}")
+            return None
 
 
 # ── Honest Fallback ───────────────────────────────────────────────────────────

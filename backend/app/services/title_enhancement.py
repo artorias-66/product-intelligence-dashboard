@@ -108,31 +108,44 @@ def _enhance_with_groq(product: Product, category: Optional[str] = None, brand: 
 
 
 def _enhance_with_gemini(product: Product, category: Optional[str] = None, brand: Optional[str] = None) -> Optional[dict]:
-    """Use Gemini as a last-resort AI fallback."""
-    try:
-        from google import genai
-        client = genai.Client(api_key=settings.GEMINI_API_KEY)
-        prompt = _build_prompt(product, category, brand)
-        response = client.models.generate_content(model=settings.GEMINI_MODEL, contents=prompt)
-        text = response.text.strip()
-        if text.startswith("```"):
-            lines = text.split("\n")
-            lines = [l for l in lines if not l.strip().startswith("```")]
-            text = "\n".join(lines).strip()
-        result = json.loads(text)
-        return {
-            "enhanced_title": result.get("enhanced_title", ""),
-            "extracted_attributes": result.get("extracted_attributes", {}),
-            "suggested_keywords": result.get("suggested_keywords", []),
-            "reason": result.get("reason", "Enhanced by Gemini AI") + " [Gemini]",
-        }
-    except Exception as e:
-        err_str = str(e)
-        if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "quota" in err_str.lower():
-            print(f"Gemini quota exceeded for SKU {product.sku_id}.")
-        else:
-            print(f"Gemini title enhancement failed for SKU {product.sku_id}: {type(e).__name__}: {str(e)[:100]}")
-        return None
+    """Use Gemini as a last-resort AI fallback, with retry logic for rate limits."""
+    import time
+    
+    max_retries = 3
+    base_delay = 5  # Start with a 5 second delay for 429s
+
+    for attempt in range(max_retries):
+        try:
+            from google import genai
+            client = genai.Client(api_key=settings.GEMINI_API_KEY)
+            prompt = _build_prompt(product, category, brand)
+            response = client.models.generate_content(model=settings.GEMINI_MODEL, contents=prompt)
+            text = response.text.strip()
+            if text.startswith("```"):
+                lines = text.split("\n")
+                lines = [l for l in lines if not l.strip().startswith("```")]
+                text = "\n".join(lines).strip()
+            result = json.loads(text)
+            return {
+                "enhanced_title": result.get("enhanced_title", ""),
+                "extracted_attributes": result.get("extracted_attributes", {}),
+                "suggested_keywords": result.get("suggested_keywords", []),
+                "reason": result.get("reason", "Enhanced by Gemini AI") + " [Gemini]",
+            }
+        except Exception as e:
+            err_str = str(e)
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "quota" in err_str.lower():
+                if attempt < max_retries - 1:
+                    sleep_time = base_delay * (2 ** attempt)
+                    print(f"Gemini rate limit hit for SKU {product.sku_id}. Retrying in {sleep_time}s... (Attempt {attempt+1}/{max_retries})")
+                    time.sleep(sleep_time)
+                    continue
+                else:
+                    print(f"Gemini quota exceeded for SKU {product.sku_id} after {max_retries} attempts.")
+            else:
+                print(f"Gemini title enhancement failed for SKU {product.sku_id}: {type(e).__name__}: {str(e)[:100]}")
+            
+            return None
 
 
 def _rule_based_fallback(product: Product) -> dict:
