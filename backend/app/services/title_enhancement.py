@@ -1,4 +1,4 @@
-"""Title enhancement service — Claude (primary) → Groq → Gemini → rule-based fallback."""
+"""Title enhancement service — Groq → Gemini → rule-based fallback."""
 
 import json
 from typing import Optional
@@ -33,37 +33,6 @@ Please respond ONLY with a valid JSON object (no markdown, no code fences) with 
 
 Respond with pure JSON only."""
 
-
-def _enhance_with_claude(product: Product, category: Optional[str] = None, brand: Optional[str] = None) -> Optional[dict]:
-    """Use Claude to generate an enhanced title."""
-    if not settings.ANTHROPIC_API_KEY:
-        return None
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
-        prompt = _build_prompt(product, category, brand)
-        response = client.messages.create(
-            model=settings.ANTHROPIC_MODEL,
-            max_tokens=1024,
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
-        )
-        text = response.content[0].text.strip()
-        if text.startswith("```"):
-            lines = text.split("\n")
-            lines = [l for l in lines if not l.strip().startswith("```")]
-            text = "\n".join(lines).strip()
-        result = json.loads(text)
-        return {
-            "enhanced_title": result.get("enhanced_title", ""),
-            "extracted_attributes": result.get("extracted_attributes", {}),
-            "suggested_keywords": result.get("suggested_keywords", []),
-            "reason": result.get("reason", "Enhanced by Claude AI") + " [Claude]",
-        }
-    except Exception as e:
-        print(f"Claude title enhancement failed for SKU {product.sku_id}: {type(e).__name__}: {str(e)[:150]}")
-        return None
 
 
 def _enhance_with_groq(product: Product, category: Optional[str] = None, brand: Optional[str] = None) -> Optional[dict]:
@@ -185,11 +154,10 @@ def enhance_product_title(
 ) -> EnhancedTitle:
     """
     Enhance a product title using:
-    Claude → Groq → Gemini → Rule-based fallback
+    Groq → Gemini → Rule-based fallback
     """
     result = (
-        _enhance_with_claude(product, category, brand)
-        or _enhance_with_groq(product, category, brand)
+        _enhance_with_groq(product, category, brand)
         or _enhance_with_gemini(product, category, brand)
         or _rule_based_fallback(product)
     )

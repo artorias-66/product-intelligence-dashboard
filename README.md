@@ -32,8 +32,7 @@ A full-stack, AI-powered platform for automated e-commerce product extraction, v
 **AI & Computer Vision**
 *   **OpenCV (`cv2`)**: Programmatic extraction of the middle frame from raw video uploads.
 *   **Tesseract OCR**: Local text extraction to prevent AI hallucinations on model numbers.
-*   **Groq LPU (Llama Vision)**: Lightning-fast primary reasoning engine for video product extraction.
-*   **Anthropic Claude 3.5 Sonnet**: Primary reasoning engine for SEO title enhancement.
+*   **Groq LPU (Llama Vision/Language)**: Lightning-fast primary reasoning engine for video product extraction and SEO title enhancement.
 *   **Google Gemini 2.5 Flash**: Robust secondary fallback for both vision extraction and title enhancement with implemented exponential backoff.
 
 **Infrastructure**

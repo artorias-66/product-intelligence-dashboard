@@ -16,10 +16,6 @@ class Settings(BaseSettings):
 
     DATABASE_URL: Optional[str] = None
 
-    # Claude / Anthropic (primary AI for product extraction & title enhancement)
-    ANTHROPIC_API_KEY: Optional[str] = None
-    ANTHROPIC_MODEL: str = "claude-3-5-sonnet-20241022"
-
     # Gemini (kept as secondary fallback for title enhancement only)
     GEMINI_API_KEY: Optional[str] = None
     GEMINI_MODEL: str = "gemini-2.5-flash"
