@@ -81,30 +81,36 @@ Get a birds-eye view of your entire product catalog, overall listing quality sco
 ![Dashboard Overview](frontend/public/1.png)
 ![Quality Metrics](frontend/public/2.png)
 
-### 2. Video Ingestion & AI Extraction Review
-Upload a product video (or fallback CSV) and toggle the AI Title Enhancement flag. The system asynchronously processes the video using OpenCV frame extraction and Tesseract OCR. If the AI confidence is low, it triggers a "Pending Review" state for manual human intervention.
+### 2. Video Ingestion
+Upload a product video (or fallback CSV) and toggle the AI Title Enhancement flag.
 ![Video Upload](frontend/public/product_video.png)
+
+### 3. AI Extraction Review
+The system asynchronously processes the video using OpenCV frame extraction and Tesseract OCR. If the AI confidence is low, it triggers a "Pending Review" state for manual human intervention.
 ![Extraction Review](frontend/public/4.png)
+
+### 4. Job Tracking
+Monitor the asynchronous processing status of all your video and CSV ingestion jobs.
+![Job Tracking](frontend/public/10.png)
 ![Job Processing](frontend/public/3.png)
 
-### 3. AI Title Enhancement & Product Details
+### 5. AI Title Enhancement & Product Details
 If enabled, our Hybrid AI Pipeline (Groq LPU + Gemini) automatically generates SEO-optimized product titles based on extracted attributes and market trend keywords.
 ![AI Enhancement](frontend/public/5.png)
 ![Product Details](frontend/public/6.png)
 
-### 5. Product Catalog & Filtering
+### 6. Product Catalog & Filtering
 View your entire validated product catalog with powerful filtering by category, severity, and stock status.
 ![Product List](frontend/public/7.png)
 
-### 6. Competitor Pricing Analysis
+### 7. Competitor Pricing Analysis
 Track historical pricing trends against competitors like Amazon and Myntra to identify pricing gaps and actionable opportunities.
 ![Competitor Prices](frontend/public/8.png)
+![Uploaded Competitor Prices](frontend/public/9.png)
 
-### 7. Automated Alert Generation
+### 8. Automated Alert Generation
 The validation engine automatically flags issues (e.g., Missing descriptions, low prices, or category anomalies) with associated severity levels.
 ![Alert Popup](frontend/public/alert.png)
-![Alerts Dashboard](frontend/public/9.png)
-![Alert Details](frontend/public/10.png)
 
 ---
 
