@@ -32,7 +32,9 @@ A full-stack, AI-powered platform for automated e-commerce product extraction, v
 **AI & Computer Vision**
 *   **OpenCV (`cv2`)**: Programmatic extraction of the middle frame from raw video uploads.
 *   **Tesseract OCR**: Local text extraction to prevent AI hallucinations on model numbers.
-*   **Google Gemini 2.5 Flash / Anthropic Claude 3.5**: Multimodal LLMs used as reasoning engines for product extraction and SEO title enhancement.
+*   **Groq LPU (Llama Vision)**: Lightning-fast primary reasoning engine for video product extraction.
+*   **Anthropic Claude 3.5 Sonnet**: Primary reasoning engine for SEO title enhancement.
+*   **Google Gemini 2.5 Flash**: Robust secondary fallback for both vision extraction and title enhancement with implemented exponential backoff.
 
 **Infrastructure**
 *   **Neon Serverless PostgreSQL**: Cloud database with connection pooling.
@@ -142,7 +144,9 @@ The relational database is built on PostgreSQL with the following core entities:
 
 ## 🔮 What I would improve with more time
 
-1.  **Multi-Frame Video Analysis**: Instead of just grabbing the middle frame, I would use FFmpeg to sample 1 frame every 3 seconds, pass them all to Gemini, and allow the model to build a cohesive understanding of the entire video.
-2.  **Live Competitor Scraping**: Integrate BrightData or a dedicated scraping API to pull live competitor prices dynamically based on the SKU.
-3.  **WebSockets for Real-Time UI**: Implement FastAPI WebSockets so the frontend receives instant push notifications when a job completes or an alert triggers, eliminating the need for HTTP polling.
-4.  **User Authentication**: Add JWT-based authentication and role-based access control (Admin vs. Reviewer).
+1.  **Interactive Editing**: Adding a feature to let users directly edit and update product details (like name, ID, category) right from the dashboard instead of just analyzing them.
+2.  **Live Competitor Scraping**: Replacing the mocked pricing with real-time competitor prices fetched securely via proxy networks.
+3.  **Authentication & User Management**: Implementing robust user authentication (e.g., JWT or OAuth) to secure the dashboard and manage different user roles.
+4.  **Historical Pricing Analytics**: Building out more advanced trend visualization for competitor prices over longer time horizons.
+5.  **Background Worker Queues**: Replacing the backend threading with a robust distributed task queue like Celery & Redis for massive scalability.
+6.  **Performance Optimization**: Reducing the startup delay and cold-start latency we are currently facing in the free-tier hosted version by upgrading the infrastructure.
