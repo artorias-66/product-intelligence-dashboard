@@ -2059,14 +2059,7 @@ tbody td {
 .badge-warning { background: var(--warning-muted); color: var(--warning); }
 .badge-lg { font-size: 0.875rem; padding: 6px 14px; }
 
-.timeline { display: flex; flex-direction: column; gap: 0; padding: 0.5rem 0; }
-.timeline-item { display: flex; align-items: flex-start; gap: 1rem; padding: 0.75rem 0; position: relative; }
-.timeline-item:not(:last-child)::after { content: ''; position: absolute; left: 9px; top: 32px; bottom: -4px; width: 2px; background: var(--border); }
-.timeline-dot { width: 20px; height: 20px; border-radius: 50%; background: var(--surface-hover); border: 2px solid var(--border); flex-shrink: 0; margin-top: 2px; }
-.timeline-item.done .timeline-dot { background: var(--primary); border-color: var(--primary); }
-.timeline-content { flex: 1; }
-.timeline-label { display: block; font-weight: 500; color: var(--text-primary); }
-.timeline-time { font-size: 0.8125rem; color: var(--text-tertiary); }
+
 .card-error { border-color: rgba(239,68,68,0.3); }
 .error-message { font-size: 0.8125rem; color: var(--danger); background: var(--danger-muted); padding: 1rem; border-radius: var(--radius); font-family: monospace; white-space: pre-wrap; }
 
@@ -2171,15 +2164,15 @@ tbody td {
 
 /* ─── Timeline (Job Detail) ─────────────────────────────── */
 .timeline { display: flex; flex-direction: column; gap: 0; padding: 0.5rem 0; }
-.timeline-item { display: flex; gap: 1rem; position: relative; padding-bottom: 1.5rem; }
+.timeline-item { display: flex; align-items: flex-start; gap: 1rem; position: relative; padding-bottom: 1.5rem; }
 .timeline-item:last-child { padding-bottom: 0; }
 .timeline-item::before {
   content: '';
   position: absolute;
   left: 7px;
-  top: 16px;
+  top: 18px;
   width: 2px;
-  bottom: 0;
+  bottom: -4px;
   background: var(--border);
 }
 .timeline-item:last-child::before { display: none; }
@@ -2190,14 +2183,14 @@ tbody td {
   background: var(--surface);
   border: 2px solid var(--border);
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 3px;
   transition: all 0.3s;
   z-index: 1;
 }
 .timeline-item.done .timeline-dot { background: var(--success); border-color: var(--success); }
-.timeline-content { flex: 1; min-width: 0; }
-.timeline-label { display: flex; align-items: center; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); }
-.timeline-time { display: block; font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.2rem; }
+.timeline-content { flex: 1; min-width: 0; margin-top: 0; }
+.timeline-label { display: flex; align-items: center; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); line-height: 1.4; }
+.timeline-time { display: block; font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.1rem; }
 
 /* ─── Card error variant ────────────────────────────────── */
 .card-error { border-color: rgba(239,68,68,0.3) !important; background: #0d0202; }
