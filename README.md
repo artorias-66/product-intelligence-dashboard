@@ -1,135 +1,143 @@
 # Product Intelligence Dashboard
 
-A comprehensive end-to-end dashboard designed to intelligently extract product details from videos/images, validate e-commerce listing quality, analyze competitor pricing, and automatically alert users of listing issues.
-
-## 🔗 Deployment Links
-- **Frontend App**: *(To be deployed — e.g. Vercel/Netlify URL)*
-- **Backend API**: *(To be deployed — e.g. Render/Heroku URL)*
-- **GitHub Repository**: [https://github.com/artorias-66/product-intelligence-dashboard](https://github.com/artorias-66/product-intelligence-dashboard)
-
-*(Note: If running locally, Frontend is `http://localhost:5173` or `http://localhost` via Docker, Backend is `http://localhost:8000`)*
+A full-stack, AI-powered platform for automated e-commerce product extraction, validation, and competitor pricing analysis.
 
 ---
 
-## 🛠️ Tech Stack
-- **Frontend**: React (Vite), TailwindCSS, React Router, Lucide Icons, Recharts (for price history).
-- **Backend**: Python, FastAPI, SQLAlchemy (ORM), Uvicorn.
-- **Database**: PostgreSQL (Neon Serverless for prod, local Docker Postgres for dev).
-- **AI/ML Integration**: 
-  - Google Cloud Vision API (Robust OCR extraction from video frames).
-  - Google Gemini 2.5 Flash / Gemini Vision (Contextual product extraction & title enhancement).
-- **Background Jobs**: APScheduler (Scheduled competitor price scraping & real-time Telegram alerts).
-- **Deployment**: Docker & Docker Compose (Containerization).
+## 🔗 Deployment Links
+
+*   **Live Dashboard (Frontend)**: [Vercel Deployment](https://product-intelligence-dashboard-aw9mqc63r-artorias-66s-projects.vercel.app/)
+*   **Live API (Backend)**: [Render Deployment](https://product-intelligence-api-dkuo.onrender.com)
+*   **Interactive API Docs**: [Swagger UI](https://product-intelligence-api-dkuo.onrender.com/api/docs)
+
+*(Note: The backend is hosted on Render's free tier. We utilize a GitHub Action cron job to ping the server every 14 minutes to prevent cold starts during your review!)*
+
+---
+
+## 🛠️ Tech Stack Used
+
+**Frontend**
+*   **React (Vite)**: For a fast, modern single-page application.
+*   **React Router**: For client-side routing.
+*   **Recharts**: For plotting competitor pricing trends and quality distribution.
+*   **CSS3**: Custom glassmorphism design system (no Tailwind).
+
+**Backend**
+*   **FastAPI (Python 3.11)**: High-performance asynchronous API framework.
+*   **SQLAlchemy (ORM)**: For robust relational database interactions.
+*   **Pydantic**: For strict data validation and API schemas.
+
+**AI & Computer Vision**
+*   **OpenCV (`cv2`)**: Programmatic extraction of the middle frame from raw video uploads.
+*   **Tesseract OCR**: Local text extraction to prevent AI hallucinations on model numbers.
+*   **Google Gemini 2.5 Flash / Anthropic Claude 3.5**: Multimodal LLMs used as reasoning engines for product extraction and SEO title enhancement.
+
+**Infrastructure**
+*   **Neon Serverless PostgreSQL**: Cloud database with connection pooling.
+*   **Docker & Docker Compose**: Containerization for seamless local development.
+*   **Vercel & Render**: Cloud hosting platforms.
 
 ---
 
 ## 🚀 How to Run Locally
 
-### 1. Using Docker Compose (Recommended)
-This is the easiest way to spin up the entire application (Database, Backend API, and Frontend) simultaneously.
-1. Clone the repository: `git clone https://github.com/artorias-66/product-intelligence-dashboard.git`
-2. Create a `backend/.env` file with your API keys (see Environment Variables section below).
-3. Run the following command in the root directory:
+You must have **Docker** and **Docker Compose** installed on your machine.
+
+1. **Clone the repository:**
    ```bash
-   docker-compose up --build -d
+   git clone https://github.com/artorias-66/product-intelligence-dashboard.git
+   cd product-intelligence-dashboard
    ```
-4. Access the **Frontend** at `http://localhost`
-5. Access the **Backend API Docs** at `http://localhost:8000/docs`
 
-### 2. Manual Setup (Without Docker)
-**Backend:**
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # (or venv\Scripts\activate on Windows)
-pip install -r requirements.txt
-python -m uvicorn app.main:app --reload --port 8000
-```
-**Frontend:**
-```bash
-cd frontend
-npm install
-npm run dev
-```
+2. **Configure Environment Variables:**
+   Create a `.env` file inside the `backend/` directory and add your keys:
+   ```env
+   DATABASE_URL=postgresql://<user>:<password>@<neon-host>/neondb?sslmode=require
+   GEMINI_API_KEY=your_gemini_api_key
+   ANTHROPIC_API_KEY=your_anthropic_api_key
+   ```
 
-### Environment Variables (`backend/.env`)
-```env
-DATABASE_URL=postgresql://user:password@localhost:5432/db_name
-GEMINI_API_KEY=your_gemini_key
-GROQ_API_KEY=your_groq_key
-GOOGLE_APPLICATION_CREDENTIALS=gcp-vision-key.json
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token
-TELEGRAM_CHAT_ID=your_chat_id
-```
+3. **Spin up the Containers:**
+   ```bash
+   docker-compose up -d --build
+   ```
+
+4. **Access the Application:**
+   * Frontend: `http://localhost:5173`
+   * Backend API Docs: `http://localhost:8000/api/docs`
 
 ---
 
-## 📖 How to Use the App
+## 📖 How to Use the Deployed App
 
-1. **Upload Video / Job Creation**: Navigate to the "Upload" tab and drag-and-drop an MP4 video of a product. The backend extracts frames using `ffmpeg`, runs it through Google Cloud Vision OCR, and feeds the context to Google Gemini to extract accurate JSON listings.
-2. **Review & Approve**: Go to the "Jobs" page. Review the AI-extracted product. You can manually edit the title/brand/price before approving.
-3. **Dashboard & Alerts**: Once approved, the product flows into the master inventory. The background scheduler evaluates the listing quality, checks competitor prices, and flags any issues (e.g., "Missing Title", "Price 10% higher than Amazon").
-4. **AI Enhancement**: On the Product Details page, click "AI Enhance" to automatically generate SEO-optimized titles.
-5. **Real-time Notifications**: Critical alerts are automatically pushed to Telegram via a background bot.
-
----
-
-## 🗄️ Data Model & Schema Explanation
-
-The Postgres database utilizes SQLAlchemy ORM with the following core entities:
-- **VideoJob**: Tracks the upload and asynchronous AI extraction status (`PENDING`, `ACTIVE`, `COMPLETED`, `FAILED`).
-- **Product**: The canonical master listing. Contains SEO details, Flipkart pricing, and a calculated `quality_score`.
-- **CompetitorPrice**: A One-to-Many relationship with `Product`. Tracks historical price fluctuations across Amazon, Myntra, etc.
-- **Alert**: A One-to-Many relationship with `Product`. Flags business logic violations (e.g., `CRITICAL`, `WARNING`).
+1. **Dashboard (`/`)**: View high-level metrics, active alerts, and quality score distribution.
+2. **Upload (`/upload`)**: Upload a `.mp4` video or a `.csv` product feed. Toggle the **"Enhance Product Title"** flag if you want the LLM to generate SEO-optimized variants.
+3. **Jobs (`/jobs`)**: Monitor the asynchronous processing status. If a video extraction fails (e.g., OCR fails), the job enters a `PENDING_REVIEW` state where you can manually intervene.
+4. **Products (`/products`)**: Filter, search, and view all ingested products. Click a product to see its **Competitor Price History** (visualized via Recharts) and recommended items.
+5. **Alerts (`/alerts`)**: Review missing descriptions, low prices, or category anomalies flagged by the validation engine. Click an alert to jump directly to the product.
 
 ---
 
 ## 🔌 API Documentation
 
-The backend heavily utilizes FastAPI, which automatically generates Swagger/OpenAPI documentation. 
-When the backend is running, visit **`http://localhost:8000/docs`** for interactive, clean API documentation.
+The full interactive API documentation is automatically generated by FastAPI.
+Visit: **[https://product-intelligence-api-dkuo.onrender.com/api/docs](https://product-intelligence-api-dkuo.onrender.com/api/docs)**
 
-### Core Endpoints:
-- `POST /api/jobs/upload`: Accepts `multipart/form-data` video files.
-- `GET /api/jobs/{job_id}`: Polls extraction status and returns AI-identified draft products.
-- `POST /api/jobs/{job_id}/approve`: Commits draft products to the master `Product` catalog.
-- `GET /api/products`: Lists all approved inventory.
-- `GET /api/alerts`: Fetches unread quality & pricing alerts.
-- `POST /api/products/{sku_id}/recommendations`: Triggers LLM to enhance product titles.
+**Core Endpoints:**
+*   `POST /api/upload-video`: Accepts a video file, returns a `job_id` for polling.
+*   `POST /api/upload-csv`: Accepts a CSV product feed, returns a `job_id` for polling.
+*   `GET /api/jobs/{job_id}`: Poll for the asynchronous extraction status.
+*   `GET /api/products`: List products with pagination, filtering, and search.
+*   `GET /api/competitor-prices/product/{sku_id}/history`: Fetch mock historical pricing for Recharts.
 
 ---
 
-## 🤔 Assumptions Made
-- A single video can contain multiple items, but generally represents one primary item.
-- Competitor prices fluctuate dynamically. For the sake of this assignment, background workers occasionally simulate competitor price scraping since live E-commerce scraping requires heavy proxies.
-- Not all videos are perfectly readable; fallback OCR and prompt engineering is relied upon for "best effort" extraction.
+## 🗄️ Data Model / Schema Explanation
+
+The relational database is built on PostgreSQL with the following core entities:
+
+1.  **Product**: The central entity (`sku_id`, `product_title`, `brand`, `category`, `price`, `description`, `quality_score`).
+2.  **Job**: Tracks the asynchronous ingestion state (`status`, `type`, `error_message`, `draft_data`).
+3.  **ProductIssue**: Tracks specific validation failures (e.g., "Missing description", "Price is zero"). One-to-many from Product.
+4.  **Alert**: User-facing notifications generated by Issues. One-to-many from Product.
+5.  **CompetitorPrice**: Tracks historical pricing across external platforms (Amazon, Myntra, etc.). Many-to-one from Product.
+6.  **EnhancedTitle**: Stores SEO-optimized title variants generated by the LLM. One-to-many from Product.
 
 ---
 
 ## 🎭 What is Real vs. Mocked
 
-**Real Implementation:**
-- **AI Extraction**: Real Google Gemini 2.5 Flash / Vision integration.
-- **OCR Engine**: Real Google Cloud Vision API integration.
-- **Database**: Real PostgreSQL persistence.
-- **Notifications**: Real Telegram Bot API integration delivering live push notifications.
-- **File Handling**: Real MP4 byte extraction and background processing.
-- **Containerization**: Fully Dockerized environments.
+**Real / Fully Functional:**
+*   **Video Extraction**: The OpenCV + Tesseract + Gemini pipeline genuinely reads frames and extracts data dynamically.
+*   **Database & Validations**: The Neon Postgres database is fully persistent. All quality scores, alerts, and schema validations are calculated in real-time.
+*   **Title Enhancement**: The LLM actively generates SEO-optimized titles dynamically based on your toggle.
+*   **Asynchronous Processing**: Background jobs actually process data asynchronously, utilizing polling on the frontend.
 
-**Mocked Implementation:**
-- **Competitor Price Scraping**: Live Amazon/Myntra scraping is mocked using scheduled background randomized volatility functions to simulate a live market without getting IP-banned.
-- **Cloud Storage**: Videos are processed fully in-memory or via temporary file systems rather than permanent S3 buckets to reduce architectural overhead for the assignment.
+**Mocked / Simulated:**
+*   **Competitor Pricing**: Live web-scraping Amazon/Myntra is legally complex and unstable for a demo. Competitor data is simulated using randomized realistic data populated via the DB seeder and CSV uploads.
+*   **Auth**: Authentication is omitted to simplify the reviewer experience.
+
+---
+
+## 🏗️ Assumptions Made
+
+1.  **Video Format**: Assumes users are uploading short (under 60s) product showcase videos in standard `.mp4` format where the product is clearly visible in the middle frame.
+2.  **Scale**: Assumes a B2B internal dashboard use-case, prioritizing data accuracy and validation workflows over high-concurrency consumer traffic.
+3.  **LLM Reliability**: Assumes the Gemini/Claude API remains highly available. We implemented deterministic fallbacks (human review) to handle quota limits or hallucinations.
 
 ---
 
 ## ⚖️ Trade-offs and Limitations
-- **Processing Time**: Relying on external AI APIs (Gemini/GCP) means job extraction takes ~5-15 seconds. In a heavily scaled production system, this would be decoupled into a Redis/Celery queue rather than native FastAPI background tasks.
-- **Video Size Limits**: Hardcoded to accept reasonable video sizes since FastAPI loads the upload into memory/tempfiles. A signed S3 direct-upload would be better for multi-GB videos.
+
+*   **Single-Frame Extraction**: To save immense API costs and processing time, we only extract the *middle* frame of the video. If the product is only shown at the very beginning or end, the extraction will fail.
+*   **Polling vs. WebSockets**: The frontend polls the `/jobs` endpoint every 2 seconds instead of using WebSockets. This was chosen for architectural simplicity on serverless deployments (Vercel/Render), but introduces slight overhead.
+*   **Rate Limits**: The free tier of Gemini 2.5 Flash has strict Requests-Per-Minute (RPM) limits, which restricts how many videos can be uploaded simultaneously.
 
 ---
 
-## 🔮 What I Would Improve With More Time
-1. **Message Broker Integration**: Implement Celery + Redis or RabbitMQ for truly robust, distributed job processing and retries.
-2. **WebSocket Real-time Updates**: Replace frontend polling (`setInterval`) with WebSockets/Server-Sent Events for instant Job and Alert updates.
-3. **Advanced RAG**: Connect the AI extraction to an internal product vector database (e.g., Pinecone/Milvus) to match extracted video items against an existing internal catalog perfectly.
-4. **Authentication**: Implement OAuth2 / JWT to isolate dashboards by User/Organization.
+## 🔮 What I would improve with more time
+
+1.  **Multi-Frame Video Analysis**: Instead of just grabbing the middle frame, I would use FFmpeg to sample 1 frame every 3 seconds, pass them all to Gemini, and allow the model to build a cohesive understanding of the entire video.
+2.  **Live Competitor Scraping**: Integrate BrightData or a dedicated scraping API to pull live competitor prices dynamically based on the SKU.
+3.  **WebSockets for Real-Time UI**: Implement FastAPI WebSockets so the frontend receives instant push notifications when a job completes or an alert triggers, eliminating the need for HTTP polling.
+4.  **User Authentication**: Add JWT-based authentication and role-based access control (Admin vs. Reviewer).
