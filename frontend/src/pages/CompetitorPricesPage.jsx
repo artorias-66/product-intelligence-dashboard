@@ -68,7 +68,7 @@ export default function CompetitorPricesPage() {
     <div className="competitor-page">
       <div className="page-header">
         <h1 className="page-title">Competitor Prices</h1>
-        <button className="btn-primary" onClick={handleRefresh} disabled={refreshing}>
+        <button className="btn btn-primary" onClick={handleRefresh} disabled={refreshing}>
           {refreshing ? <><Loader2 size={16} className="spin" /> Refreshing...</> : <><RefreshCw size={16} /> Refresh All Prices</>}
         </button>
       </div>
@@ -97,7 +97,7 @@ export default function CompetitorPricesPage() {
             {file ? (
               <div className="upload-zone-file">
                 <p className="upload-zone-filename">{file.name}</p>
-                <button className="btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); setFile(null); }}>Remove</button>
+                <button className="btn btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); setFile(null); }}>Remove</button>
               </div>
             ) : (
               <>
@@ -108,7 +108,7 @@ export default function CompetitorPricesPage() {
             )}
           </div>
           <div className="upload-actions">
-            <button className="btn-primary" onClick={handleUploadCsv} disabled={!file || uploading}>
+            <button className="btn btn-primary" onClick={handleUploadCsv} disabled={!file || uploading}>
               {uploading ? <><Loader2 size={16} className="spin" /> Uploading...</> : 'Upload Prices'}
             </button>
           </div>
@@ -151,7 +151,7 @@ export default function CompetitorPricesPage() {
               </div>
             </div>
             <div className="upload-actions">
-              <button type="submit" className="btn-primary" disabled={!manualEntry.sku_id || !manualEntry.competitor_price || uploading}>
+              <button type="submit" className="btn btn-primary" disabled={!manualEntry.sku_id || !manualEntry.competitor_price || uploading}>
                 {uploading ? <><Loader2 size={16} className="spin" /> Adding...</> : <><Plus size={16} /> Add Price</>}
               </button>
             </div>

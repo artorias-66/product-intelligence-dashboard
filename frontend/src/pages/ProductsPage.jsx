@@ -69,7 +69,7 @@ export default function ProductsPage() {
           <h1 className="page-title">Products</h1>
           <span className="text-secondary">{total} product{total !== 1 ? 's' : ''}</span>
         </div>
-        <button className="btn-primary" onClick={handleDownloadReport} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <button className="btn btn-primary" onClick={handleDownloadReport}>
           <Download size={16} /> Download CSV Report
         </button>
       </div>
@@ -137,7 +137,7 @@ export default function ProductsPage() {
                         {p.availability === 'in_stock' ? 'In Stock' : 'Out of Stock'}
                       </span>
                     </td>
-                    <td><Link to={`/products/${p.sku_id}`} className="btn-sm btn-primary">View</Link></td>
+                    <td><Link to={`/products/${p.sku_id}`} className="btn btn-sm btn-primary">View</Link></td>
                   </tr>
                 ))}
               </tbody>
@@ -147,11 +147,11 @@ export default function ProductsPage() {
           <div className="pagination">
             <span className="pagination-info">Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} of {total}</span>
             <div className="pagination-controls">
-              <button className="btn-sm btn-secondary" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
+              <button className="btn btn-sm btn-secondary" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
                 <ChevronLeft size={14} /> Prev
               </button>
               <span className="pagination-page">Page {page} of {totalPages}</span>
-              <button className="btn-sm btn-secondary" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
+              <button className="btn btn-sm btn-secondary" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
                 Next <ChevronRight size={14} />
               </button>
             </div>

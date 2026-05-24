@@ -2166,31 +2166,31 @@ tbody td {
 .timeline { display: flex; flex-direction: column; gap: 0; padding: 0.5rem 0; }
 .timeline-item { display: flex; align-items: flex-start; gap: 1rem; position: relative; padding-bottom: 1.5rem; }
 .timeline-item:last-child { padding-bottom: 0; }
-.timeline-item::before {
-  content: '';
+.timeline-line {
   position: absolute;
   left: 7px;
-  top: 18px;
+  top: 20px;
   width: 2px;
-  bottom: -4px;
-  background: var(--border);
+  bottom: 0;
 }
-.timeline-item:last-child::before { display: none; }
 .timeline-dot {
+  position: relative;
+  left: auto;
+  top: auto;
   width: 16px;
   height: 16px;
   border-radius: 50%;
   background: var(--surface);
   border: 2px solid var(--border);
   flex-shrink: 0;
-  margin-top: 3px;
+  margin-top: 0;
   transition: all 0.3s;
   z-index: 1;
 }
 .timeline-item.done .timeline-dot { background: var(--success); border-color: var(--success); }
-.timeline-content { flex: 1; min-width: 0; margin-top: 0; }
-.timeline-label { display: flex; align-items: center; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); line-height: 1.4; }
-.timeline-time { display: block; font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.1rem; }
+.timeline-content { flex: 1; min-width: 0; margin-top: 0; display: block; }
+.timeline-label { display: flex; align-items: center; font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); line-height: 20px; }
+.timeline-time { display: block; font-size: 0.75rem; color: var(--text-tertiary); margin-top: 2px; line-height: 1; }
 
 /* ─── Card error variant ────────────────────────────────── */
 .card-error { border-color: rgba(239,68,68,0.3) !important; background: #0d0202; }

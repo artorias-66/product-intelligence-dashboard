@@ -165,7 +165,7 @@ export default function JobDetailPage() {
       <XCircle size={48} color="#ef4444" style={{ margin: '0 auto 1rem' }} />
       <h3 style={{ color: '#ef4444' }}>Error loading job</h3>
       <p style={{ color: '#94a3b8', marginTop: '0.5rem' }}>{error}</p>
-      <Link to="/jobs" className="btn-primary" style={{ marginTop: '1.5rem', display: 'inline-flex' }}>
+      <Link to="/jobs" className="btn btn-primary" style={{ marginTop: '1.5rem', display: 'inline-flex' }}>
         Back to Jobs
       </Link>
     </div>
@@ -183,9 +183,9 @@ export default function JobDetailPage() {
   const steps = [
     { label: 'Job Created',    done: true,                              time: job.created_at },
     { label: 'Processing Started', done: !!job.started_at,             time: job.started_at },
-    { label: 'Validating Products', done: pct >= 50 || !active,        time: pct >= 50 ? job.started_at : null },
-    { label: 'AI Title Enhancement', done: pct >= 80 || !active,       time: pct >= 80 ? job.started_at : null },
-    { label: 'Generating Alerts',  done: pct >= 95 || !active,         time: pct >= 95 ? job.started_at : null },
+    { label: 'Validating Products', done: pct >= 50 || !active,        time: (pct >= 50 || !active) ? (job.started_at || job.completed_at) : null },
+    { label: 'AI Title Enhancement', done: pct >= 80 || !active,       time: (pct >= 80 || !active) ? (job.started_at || job.completed_at) : null },
+    { label: 'Generating Alerts',  done: pct >= 95 || !active,         time: (pct >= 95 || !active) ? (job.started_at || job.completed_at) : null },
     { label: 'Job Complete',   done: !!job.completed_at,               time: job.completed_at },
   ];
 
@@ -216,7 +216,7 @@ export default function JobDetailPage() {
             </span>
           )}
           {job.status === 'FAILED' && job.draft_data && (
-            <button className="btn-sm" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }} onClick={handleRetry} disabled={retrying}>
+            <button className="btn btn-sm" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }} onClick={handleRetry} disabled={retrying}>
               <RefreshCw size={14} className={retrying ? "spin" : ""} /> {retrying ? 'Retrying...' : 'Retry Job'}
             </button>
           )}
@@ -244,7 +244,7 @@ export default function JobDetailPage() {
               <div key={idx} style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '1rem', position: 'relative' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                   <h4 style={{ color: '#f1f5f9', margin: 0 }}>Product #{idx + 1} ({item.sku_id})</h4>
-                  <button className="btn-sm" style={{ background: '#ef444420', color: '#ef4444', border: '1px solid #ef444440', cursor: 'pointer' }} onClick={() => handleRemoveDraft(idx)}>
+                  <button className="btn btn-sm" style={{ background: '#ef444420', color: '#ef4444', border: '1px solid #ef444440', cursor: 'pointer' }} onClick={() => handleRemoveDraft(idx)}>
                     <XCircle size={14} style={{ marginRight: '4px' }} /> Remove
                   </button>
                 </div>
@@ -273,7 +273,7 @@ export default function JobDetailPage() {
               </div>
             ))}
             <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <button className="btn-secondary" onClick={handleAddDraft} style={{ borderStyle: 'dashed' }}>
+              <button className="btn btn-secondary" onClick={handleAddDraft} style={{ borderStyle: 'dashed' }}>
                 + Add Another Product
               </button>
             </div>
@@ -281,7 +281,7 @@ export default function JobDetailPage() {
 
           <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border)', background: 'var(--bg-lighter)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>{draftData.length} product{draftData.length !== 1 ? 's' : ''} to process</span>
-            <button className="btn-primary" onClick={handleApprove} disabled={approving || draftData.length === 0}>
+            <button className="btn btn-primary" onClick={handleApprove} disabled={approving || draftData.length === 0}>
               {approving ? <><Loader2 size={16} className="spin" /> Approving...</> : <><CheckCircle size={16} /> Approve & Process</>}
             </button>
           </div>
@@ -361,6 +361,9 @@ export default function JobDetailPage() {
             {steps.map((step, i) => (
               <div key={i} className={`timeline-item ${step.done ? 'done' : ''}`}>
                 <div className="timeline-dot" style={step.done ? { background: cfg.color, borderColor: cfg.color } : {}} />
+                {i < steps.length - 1 && (
+                  <div className="timeline-line" style={{ background: step.done ? cfg.color : 'var(--border)' }} />
+                )}
                 <div className="timeline-content">
                   <span className="timeline-label" style={{ color: step.done ? '#f1f5f9' : '#64748b' }}>
                     {step.label}
@@ -408,10 +411,10 @@ export default function JobDetailPage() {
           {/* Action buttons */}
           {!active && (
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Link to="/products" className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
+              <Link to="/products" className="btn btn-primary" style={{ justifyContent: 'center' }}>
                 <Package size={16} /> View Products
               </Link>
-              <Link to="/upload" className="btn-secondary" style={{ flex: 1, justifyContent: 'center' }}>
+              <Link to="/upload" className="btn btn-secondary" style={{ justifyContent: 'center' }}>
                 <RefreshCw size={16} /> New Upload
               </Link>
             </div>
@@ -445,7 +448,7 @@ export default function JobDetailPage() {
                         {(p.quality_score || 0).toFixed(0)}
                       </span>
                     </td>
-                    <td><Link to={`/products/${p.sku_id}`} className="btn-sm btn-primary">View</Link></td>
+                    <td><Link to={`/products/${p.sku_id}`} className="btn btn-sm btn-primary">View</Link></td>
                   </tr>
                 ))}
               </tbody>

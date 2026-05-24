@@ -136,7 +136,7 @@ export default function ProductDetailPage() {
           <div className="card">
             <div className="card-header">
               <h3 className="card-title"><Sparkles size={16} /> Enhanced Title</h3>
-              <button className="btn-sm btn-primary" onClick={handleEnhanceTitle} disabled={enhancing}>
+              <button className="btn btn-sm btn-primary" onClick={handleEnhanceTitle} disabled={enhancing}>
                 {enhancing ? <><Loader2 size={14} className="spin" /> Generating...</> : <><Sparkles size={14} /> {latestEnhanced ? 'Regenerate' : 'Generate'}</>}
               </button>
             </div>
@@ -211,7 +211,7 @@ export default function ProductDetailPage() {
           <div className="card">
             <div className="card-header">
               <h3 className="card-title">Competitor Prices</h3>
-              <button className="btn-sm btn-secondary" onClick={handleRefreshPrices} disabled={refreshing}>
+              <button className="btn btn-sm btn-secondary" onClick={handleRefreshPrices} disabled={refreshing}>
                 {refreshing ? <Loader2 size={14} className="spin" /> : <RefreshCw size={14} />} Refresh
               </button>
             </div>

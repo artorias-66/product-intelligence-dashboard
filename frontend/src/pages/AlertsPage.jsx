@@ -131,7 +131,7 @@ export default function AlertsPage() {
               </div>
               <div className="alert-card-actions">
                 {!alert.is_read && (
-                  <button className="btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); markAsRead(alert.id); }} title="Mark as read">
+                  <button className="btn btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); markAsRead(alert.id); }} title="Mark as read">
                     <Check size={14} />
                   </button>
                 )}

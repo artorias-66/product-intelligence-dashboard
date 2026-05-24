@@ -88,10 +88,10 @@ export default function JobsPage() {
           )}
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="btn-secondary" onClick={() => fetchJobs()}>
+          <button className="btn btn-secondary" onClick={() => fetchJobs()}>
             <RefreshCw size={15} /> Refresh
           </button>
-          <Link to="/upload" className="btn-primary">
+          <Link to="/upload" className="btn btn-primary">
             <Plus size={15} /> New Upload
           </Link>
         </div>
@@ -105,7 +105,7 @@ export default function JobsPage() {
             <FileText size={48} />
             <h3>No jobs yet</h3>
             <p>Upload a product CSV or video to create a processing job.</p>
-            <Link to="/upload" className="btn-primary" style={{ marginTop: '1rem' }}>
+            <Link to="/upload" className="btn btn-primary" style={{ marginTop: '1rem' }}>
               Start Upload
             </Link>
           </div>
@@ -179,7 +179,7 @@ export default function JobsPage() {
                   </div>
 
                   {/* Action */}
-                  <Link to={`/jobs/${job.id}`} className="btn-sm btn-primary" style={{ flexShrink: 0 }}>
+                  <Link to={`/jobs/${job.id}`} className="btn btn-sm btn-primary" style={{ flexShrink: 0 }}>
                     {isActive ? 'Track' : 'View'} →
                   </Link>
                 </div>

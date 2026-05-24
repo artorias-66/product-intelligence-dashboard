@@ -75,7 +75,7 @@ export default function DashboardPage() {
       <div className="page-header">
         <h1 className="page-title">Dashboard</h1>
         {s.total_products === 0 && (
-          <button className="btn-primary" onClick={handleSeed} disabled={seeding}>
+          <button className="btn btn-primary" onClick={handleSeed} disabled={seeding}>
             {seeding ? 'Seeding...' : '🌱 Seed Sample Data'}
           </button>
         )}
@@ -141,7 +141,7 @@ export default function DashboardPage() {
         <div className="card" style={{ flex: 2 }}>
           <div className="card-header">
             <h3 className="card-title">Recent Alerts</h3>
-            <button className="btn-sm btn-secondary" onClick={() => navigate('/alerts')}>View All</button>
+            <button className="btn btn-sm btn-secondary" onClick={() => navigate('/alerts')}>View All</button>
           </div>
           <div className="alert-list-compact">
             {alerts.length > 0 ? alerts.map(a => (
@@ -159,10 +159,10 @@ export default function DashboardPage() {
         <div className="card" style={{ flex: 1 }}>
           <div className="card-header"><h3 className="card-title">Quick Actions</h3></div>
           <div className="quick-actions">
-            <button className="btn-primary btn-lg" onClick={() => navigate('/upload')}>
+            <button className="btn btn-primary btn-lg" onClick={() => navigate('/upload')}>
               <Upload size={18} /> Upload Products
             </button>
-            <button className="btn-secondary btn-lg" onClick={() => navigate('/competitor-prices')}>
+            <button className="btn btn-secondary btn-lg" onClick={() => navigate('/competitor-prices')}>
               <RefreshCw size={18} /> Manage Prices
             </button>
           </div>

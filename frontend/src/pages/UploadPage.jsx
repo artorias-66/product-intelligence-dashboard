@@ -91,7 +91,7 @@ export default function UploadPage() {
                 <Check size={32} className="upload-zone-check" />
                 <p className="upload-zone-filename">{file.name}</p>
                 <p className="upload-zone-size">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
-                <button className="btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); setFile(null); }}>Remove</button>
+                <button className="btn btn-sm btn-secondary" onClick={(e) => { e.stopPropagation(); setFile(null); }}>Remove</button>
               </div>
             ) : (
               <>
@@ -133,7 +133,7 @@ export default function UploadPage() {
           </div>
 
           <div className="upload-actions">
-            <button className="btn-primary btn-lg" onClick={handleUpload} disabled={!file || uploading}>
+            <button className="btn btn-primary btn-lg" onClick={handleUpload} disabled={!file || uploading}>
               {uploading ? <><Loader2 size={18} className="spin" /> Processing...</> : <><Upload size={18} /> Start Processing</>}
             </button>
           </div>
@@ -195,7 +195,7 @@ export default function UploadPage() {
             </div>
 
             <div className="upload-actions">
-              <button type="submit" className="btn-primary btn-lg" disabled={!manualProduct.sku_id || uploading}>
+              <button type="submit" className="btn btn-primary btn-lg" disabled={!manualProduct.sku_id || uploading}>
                 {uploading ? <><Loader2 size={18} className="spin" /> Submitting...</> : 'Submit Product'}
               </button>
             </div>
