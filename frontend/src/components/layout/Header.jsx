@@ -94,7 +94,7 @@ export default function Header() {
           <Search className="header-search-icon" size={16} />
           <input
             type="text"
-            placeholder="Search products, jobs..."
+            placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => {
