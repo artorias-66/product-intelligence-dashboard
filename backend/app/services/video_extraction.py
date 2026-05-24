@@ -1,11 +1,12 @@
 """
-Video extraction service — Hybrid Pipeline: OpenCV (Frames) → Tesseract (OCR) → Gemini 1.5 Flash (AI)
+Video extraction service — Hybrid Pipeline: OpenCV (Frames) → Tesseract (OCR) → Groq Vision (Primary) → Gemini (Fallback)
 """
 
 import base64
 import json
 import os
 import tempfile
+import time
 import cv2
 import pytesseract
 from PIL import Image
@@ -14,7 +15,6 @@ from typing import Optional
 from app.config import settings
 from app.schemas import VideoExtractionResult
 
-# Use the modern 2.5-flash model as 1.5 is deprecated
 GEMINI_MODEL = "gemini-2.5-flash"
 
 
@@ -71,13 +71,13 @@ def _extract_best_frame(video_bytes: bytes) -> Optional[bytes]:
             vin_path = vin.name
 
         cap = cv2.VideoCapture(vin_path)
-        fps = cap.get(cv2.CAP_PROP_FPS)
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        
+
         if total_frames == 0:
+            cap.release()
+            os.unlink(vin_path)
             return None
 
-        # Grab a frame from the middle of the video (often the clearest)
         middle_frame = int(total_frames / 2)
         cap.set(cv2.CAP_PROP_POS_FRAMES, middle_frame)
         ret, frame = cap.read()
@@ -85,7 +85,6 @@ def _extract_best_frame(video_bytes: bytes) -> Optional[bytes]:
         os.unlink(vin_path)
 
         if ret:
-            # Encode frame to jpeg in memory
             _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
             frame_bytes = buffer.tobytes()
             print(f"OpenCV extracted middle frame ({len(frame_bytes)} bytes)")
@@ -104,7 +103,7 @@ def _run_tesseract_ocr(frame_bytes: bytes) -> Optional[str]:
 
         text = pytesseract.image_to_string(Image.open(img_path))
         os.unlink(img_path)
-        
+
         text = text.strip()
         if text:
             print(f"Tesseract OCR extracted {len(text)} characters: {text[:50]}...")
@@ -115,7 +114,7 @@ def _run_tesseract_ocr(frame_bytes: bytes) -> Optional[str]:
         return None
 
 
-# ── Gemini API (AI Merging) ───────────────────────────────────────────────────
+# ── Vision Prompt ────────────────────────────────────────────────────────────
 
 VISION_PROMPT = """You are a product identification expert for Indian e-commerce.
 
@@ -135,22 +134,84 @@ Return a JSON array with one object for the primary product:
 
 Return ONLY a valid JSON array. No markdown."""
 
+
+def _build_vision_prompt(file_name: str, ocr_text: str, video_hint: str) -> str:
+    prompt = VISION_PROMPT
+    prompt += f"\n\nFilename: {file_name}"
+    if ocr_text:
+        prompt += f"\n\nCRITICAL - Local OCR extracted the following text from the image:\n{ocr_text}"
+    if video_hint:
+        prompt += f"\n\nUser described the product as: {video_hint}"
+    return prompt
+
+
+# ── Groq Vision (Primary — Free, generous quota) ────────────────────────────
+
+def _call_groq_vision(frame_bytes: bytes, ocr_text: str, file_name: str, video_hint: str, max_retries: int = 2) -> Optional[list[VideoExtractionResult]]:
+    """Send frame + OCR text to Groq Vision (Llama 4 Scout). Free tier: 30 RPM, 14400 RPD."""
+    if not settings.GROQ_API_KEY:
+        return None
+
+    try:
+        from groq import Groq
+        client = Groq(api_key=settings.GROQ_API_KEY)
+
+        b64 = base64.b64encode(frame_bytes).decode("utf-8")
+        prompt = _build_vision_prompt(file_name, ocr_text, video_hint)
+
+        for attempt in range(max_retries + 1):
+            try:
+                print(f"Sending frame + OCR to Groq {settings.GROQ_VISION_MODEL} (attempt {attempt + 1})...")
+                response = client.chat.completions.create(
+                    model=settings.GROQ_VISION_MODEL,
+                    messages=[{
+                        "role": "user",
+                        "content": [
+                            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}},
+                            {"type": "text", "text": prompt},
+                        ]
+                    }],
+                    temperature=0.2,
+                    max_tokens=1024,
+                )
+
+                text = response.choices[0].message.content.strip()
+                if text:
+                    results = _parse_products(text)
+                    if results:
+                        print(f"Groq Vision extracted {len(results)} product(s)")
+                        return results[:1]
+                return None
+
+            except Exception as e:
+                err_str = str(e)
+                if ("429" in err_str or "rate" in err_str.lower()) and attempt < max_retries:
+                    wait = 2 ** (attempt + 1)
+                    print(f"Groq rate limited, retrying in {wait}s...")
+                    time.sleep(wait)
+                    continue
+                raise
+
+    except Exception as e:
+        print(f"Groq Vision failed: {e}")
+        return None
+
+
+# ── Gemini Vision (Fallback) ─────────────────────────────────────────────────
+
 def _call_gemini_vision(frame_bytes: bytes, ocr_text: str, file_name: str, video_hint: str) -> Optional[list[VideoExtractionResult]]:
-    """Send frame + OCR text to Gemini 1.5 Flash."""
+    """Send frame + OCR text to Gemini. Used as fallback when Groq is unavailable."""
+    if not settings.GEMINI_API_KEY:
+        return None
+
     try:
         from google import genai
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
         b64 = base64.b64encode(frame_bytes).decode("utf-8")
-        
-        prompt = VISION_PROMPT
-        prompt += f"\n\nFilename: {file_name}"
-        if ocr_text:
-            prompt += f"\n\nCRITICAL - Local OCR extracted the following text from the image:\n{ocr_text}"
-        if video_hint:
-            prompt += f"\n\nUser described the product as: {video_hint}"
+        prompt = _build_vision_prompt(file_name, ocr_text, video_hint)
 
-        print(f"Sending frame + OCR to {GEMINI_MODEL}...")
+        print(f"Sending frame + OCR to Gemini {GEMINI_MODEL} (fallback)...")
         response = client.models.generate_content(
             model=GEMINI_MODEL,
             contents=[
@@ -158,7 +219,7 @@ def _call_gemini_vision(frame_bytes: bytes, ocr_text: str, file_name: str, video
                 prompt
             ]
         )
-        
+
         text = response.text
         if text:
             results = _parse_products(text)
@@ -192,20 +253,25 @@ def extract_products_from_video(
     video_bytes: bytes = None,
     video_hint: str = None,
 ) -> list[VideoExtractionResult]:
-    
+
     # 1. OpenCV Frame Extraction
     frame_bytes = None
     if video_bytes:
         frame_bytes = _extract_best_frame(video_bytes)
-        
+
     if frame_bytes:
         # 2. Local Tesseract OCR
         ocr_text = _run_tesseract_ocr(frame_bytes)
-        
-        # 3. Gemini 1.5 Flash Merge
+
+        # 3. Groq Vision (primary — free, 30 RPM / 14400 RPD)
+        results = _call_groq_vision(frame_bytes, ocr_text, file_name, video_hint)
+        if results:
+            return results
+
+        # 4. Gemini Vision (fallback — limited free quota)
         results = _call_gemini_vision(frame_bytes, ocr_text, file_name, video_hint)
         if results:
             return results
-            
-    # 4. Fallback
+
+    # 5. Honest fallback
     return _honest_fallback(file_name)

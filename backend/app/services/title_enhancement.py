@@ -67,30 +67,41 @@ def _enhance_with_claude(product: Product, category: Optional[str] = None, brand
 
 
 def _enhance_with_groq(product: Product, category: Optional[str] = None, brand: Optional[str] = None) -> Optional[dict]:
-    """Use Groq LPU to generate an enhanced title."""
+    """Use Groq LPU to generate an enhanced title. Free tier: 30 RPM, 14400 RPD."""
     if not settings.GROQ_API_KEY:
         return None
     try:
+        import time
         from groq import Groq
         client = Groq(api_key=settings.GROQ_API_KEY)
         prompt = _build_prompt(product, category, brand)
-        completion = client.chat.completions.create(
-            model=settings.GROQ_MODEL,
-            messages=[
-                {"role": "system", "content": "You are a JSON-only API. Only output valid JSON without markdown formatting."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.2,
-            response_format={"type": "json_object"}
-        )
-        text = completion.choices[0].message.content.strip()
-        result = json.loads(text)
-        return {
-            "enhanced_title": result.get("enhanced_title", ""),
-            "extracted_attributes": result.get("extracted_attributes", {}),
-            "suggested_keywords": result.get("suggested_keywords", []),
-            "reason": result.get("reason", "Enhanced by Groq AI") + " [Groq LPU]",
-        }
+
+        for attempt in range(3):
+            try:
+                completion = client.chat.completions.create(
+                    model=settings.GROQ_MODEL,
+                    messages=[
+                        {"role": "system", "content": "You are a JSON-only API. Only output valid JSON without markdown formatting."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.2,
+                    response_format={"type": "json_object"}
+                )
+                text = completion.choices[0].message.content.strip()
+                result = json.loads(text)
+                return {
+                    "enhanced_title": result.get("enhanced_title", ""),
+                    "extracted_attributes": result.get("extracted_attributes", {}),
+                    "suggested_keywords": result.get("suggested_keywords", []),
+                    "reason": result.get("reason", "Enhanced by Groq AI") + " [Groq LPU]",
+                }
+            except Exception as e:
+                err_str = str(e)
+                if ("429" in err_str or "rate" in err_str.lower()) and attempt < 2:
+                    time.sleep(2 ** (attempt + 1))
+                    continue
+                raise
+
     except Exception as e:
         print(f"Groq title enhancement failed for SKU {product.sku_id}: {type(e).__name__}: {str(e)[:100]}")
         return None

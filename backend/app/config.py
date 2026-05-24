@@ -26,6 +26,7 @@ class Settings(BaseSettings):
 
     GROQ_API_KEY: Optional[str] = None
     GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    GROQ_VISION_MODEL: str = "meta-llama/llama-4-scout-17b-16e-instruct"
 
     TELEGRAM_BOT_TOKEN: Optional[str] = None
     TELEGRAM_CHAT_ID: Optional[str] = None
