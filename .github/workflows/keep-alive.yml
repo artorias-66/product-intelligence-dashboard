@@ -9,4 +9,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Render Backend
-        run: curl -s https://product-intelligence-api-dkuo.onrender.com/docs > /dev/null
+        run: curl -s https://product-intelligence-api-dkuo.onrender.com/api/health > /dev/null
