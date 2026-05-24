@@ -1,7 +1,6 @@
 # Product Intelligence Dashboard
 
-![Dashboard Overview](https://raw.githubusercontent.com/artorias-66/product-intelligence-dashboard/master/frontend/public/favicon.svg)
-*(Please replace the image link above with a real screenshot of your dashboard!)*
+![Dashboard Overview](frontend/public/screenshot.png)
 
 A full-stack, AI-powered platform for automated e-commerce product extraction, validation, and competitor pricing analysis.
 
