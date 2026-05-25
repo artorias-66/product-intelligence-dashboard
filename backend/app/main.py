@@ -59,6 +59,7 @@ app.include_router(title_enhancement.router, prefix="/api")
 
 
 @app.get("/api/health", response_model=HealthResponse, tags=["Health"])
+@app.head("/api/health", tags=["Health"])
 def health_check():
     """Health check endpoint that also verifies database connectivity."""
     db_status = "disconnected"
