@@ -1,7 +1,7 @@
 import { useLocation, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Search, Bell, Database } from 'lucide-react';
-import { alertsApi, seedApi } from '../../api/client';
+import { Search, Bell } from 'lucide-react';
+import { alertsApi } from '../../api/client';
 import { UserButton } from '@clerk/clerk-react';
 
 const pageTitles = {
@@ -36,7 +36,6 @@ function getBreadcrumbs(pathname) {
 export default function Header() {
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [seeding, setSeeding] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const breadcrumbs = getBreadcrumbs(location.pathname);
@@ -58,17 +57,6 @@ export default function Header() {
     }
   };
 
-  const handleSeed = async () => {
-    setSeeding(true);
-    try {
-      await seedApi.seed();
-      window.location.reload();
-    } catch (err) {
-      console.error('Seed failed:', err);
-    } finally {
-      setSeeding(false);
-    }
-  };
 
   return (
     <header className="header">
@@ -106,15 +94,6 @@ export default function Header() {
           />
         </div>
 
-        <button
-          className="header-seed-btn"
-          onClick={handleSeed}
-          disabled={seeding}
-          title="Seed database with sample data"
-        >
-          <Database size={14} />
-          {seeding ? 'Seeding...' : 'Seed DB'}
-        </button>
 
         <Link to="/alerts" className="header-notification">
           <Bell size={18} />
