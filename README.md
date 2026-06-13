@@ -482,7 +482,7 @@ The seeded dataset (`POST /api/seed`) creates **25 products** (15 healthy, 5 med
 | Component | Details |
 |---|---|
 | **Competitor prices** | Generated with realistic ±15–20% variation from our Flipkart price; no live scraping (assignment explicitly allows mocks; avoids legal/ToS issues) |
-| **Authentication** | Omitted so reviewers can test immediately without credentials |
+| **Authentication** | Fully integrated using Clerk (React frontend + FastAPI backend JWT verification) |
 
 ---
 
@@ -513,7 +513,7 @@ The seeded dataset (`POST /api/seed`) creates **25 products** (15 healthy, 5 med
 2. **Inline product editing in the UI** — edit listing fields directly from the product detail page (API `PUT /products/{sku_id}` already exists).
 3. **Celery + Redis job queue** — durable background workers with retry policies and horizontal scaling.
 4. **Live competitor price feeds** — official marketplace APIs or licensed data providers instead of simulation.
-5. **Authentication & multi-tenant support** — JWT/OAuth so each seller sees only their catalog.
+5. **Multi-tenant support** — Currently authentication is integrated via Clerk, but database row-level security so each seller sees only their catalog would be the next step.
 6. **WebSocket job updates** — eliminate polling overhead for real-time progress.
 7. **Bulk export & reporting** — PDF quality reports and scheduled email digests for operations teams.
 
@@ -524,6 +524,9 @@ The seeded dataset (`POST /api/seed`) creates **25 products** (15 healthy, 5 med
 | Variable | Required | Description |
 |---|---|---|
 | `DATABASE_URL` | Yes (prod) | PostgreSQL connection string |
+| `VITE_CLERK_PUBLISHABLE_KEY` | Yes (frontend) | Clerk publishable key for React authentication |
+| `CLERK_PUBLISHABLE_KEY` | Yes (backend) | Clerk publishable key for backend JWT verification |
+| `CLERK_SECRET_KEY` | Yes (backend) | Clerk secret key for backend JWT verification |
 | `GROQ_API_KEY` | Recommended | Primary AI for vision extraction and title enhancement |
 | `GEMINI_API_KEY` | Recommended | Fallback AI when Groq is unavailable |
 | `TELEGRAM_BOT_TOKEN` | Optional | Telegram bot token for external alerts |
@@ -534,9 +537,9 @@ The seeded dataset (`POST /api/seed`) creates **25 products** (15 healthy, 5 med
 
 ## Implementation Summary (for reviewers)
 
-**Fully implemented:** Complete upload-to-dashboard pipeline, 11 validation rules, quality scoring, AI video extraction with human review step, title enhancement toggle, competitor price comparison with refresh + history, alert engine with severity tiers, job tracking with retry, Docker + cloud deployment, Swagger docs, sample inputs, and seed data.
+**Fully implemented:** Complete upload-to-dashboard pipeline, 11 validation rules, quality scoring, AI video extraction with human review step, title enhancement toggle, competitor price comparison with refresh + history, alert engine with severity tiers, job tracking with retry, Docker + cloud deployment, Swagger docs, sample inputs, seed data, and Clerk authentication.
 
-**Mocked by choice:** Competitor price fetching (simulated data + CSV upload); no authentication.
+**Mocked by choice:** Competitor price fetching (simulated data + CSV upload).
 
 **Differentiators:** Real OCR + vision AI pipeline (not pure mock extraction), hybrid Groq/Gemini with fallbacks, manual review gate after video extraction, Telegram integration, scheduled price refresh, downloadable quality CSV, and a one-click seed for instant demo.
 
