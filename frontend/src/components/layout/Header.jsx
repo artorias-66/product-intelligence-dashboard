@@ -2,6 +2,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Search, Bell, Database } from 'lucide-react';
 import { alertsApi, seedApi } from '../../api/client';
+import { UserButton } from '@clerk/clerk-react';
 
 const pageTitles = {
   '/': 'Dashboard',
@@ -123,6 +124,7 @@ export default function Header() {
             </span>
           )}
         </Link>
+        <UserButton />
       </div>
     </header>
   );

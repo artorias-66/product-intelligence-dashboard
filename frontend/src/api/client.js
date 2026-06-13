@@ -11,7 +11,7 @@ const api = axios.create({
 });
 
 // Separate client for file uploads — longer timeout
-const uploadClient = axios.create({
+export const uploadClient = axios.create({
   baseURL: `${API_BASE}/api`,
   timeout: 120000,
 });

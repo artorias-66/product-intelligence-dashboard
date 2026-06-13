@@ -30,6 +30,8 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: str = "*"
 
+    CLERK_PUBLISHABLE_KEY: Optional[str] = None
+    CLERK_SECRET_KEY: Optional[str] = None
     MAX_UPLOAD_SIZE_MB: int = 50
     ALLOWED_VIDEO_EXTENSIONS: str = ".mp4,.avi,.mov,.mkv,.webm"
     ALLOWED_CSV_EXTENSIONS: str = ".csv"

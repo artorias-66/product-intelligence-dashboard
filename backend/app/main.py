@@ -14,7 +14,9 @@ from app.routers import (
     alerts,
     title_enhancement,
 )
+from app.auth import verify_clerk_token
 from app.schemas import HealthResponse, MessageResponse
+from fastapi import Depends
 
 from contextlib import asynccontextmanager
 from app.scheduler import start_scheduler, stop_scheduler
@@ -49,13 +51,13 @@ app.add_middleware(
 )
 
 # Mount routers under /api prefix
-app.include_router(upload.router, prefix="/api")
-app.include_router(jobs.router, prefix="/api")
-app.include_router(products.router, prefix="/api")
-app.include_router(dashboard.router, prefix="/api")
-app.include_router(competitor_prices.router, prefix="/api")
-app.include_router(alerts.router, prefix="/api")
-app.include_router(title_enhancement.router, prefix="/api")
+app.include_router(upload.router, prefix="/api", dependencies=[Depends(verify_clerk_token)])
+app.include_router(jobs.router, prefix="/api", dependencies=[Depends(verify_clerk_token)])
+app.include_router(products.router, prefix="/api", dependencies=[Depends(verify_clerk_token)])
+app.include_router(dashboard.router, prefix="/api", dependencies=[Depends(verify_clerk_token)])
+app.include_router(competitor_prices.router, prefix="/api", dependencies=[Depends(verify_clerk_token)])
+app.include_router(alerts.router, prefix="/api", dependencies=[Depends(verify_clerk_token)])
+app.include_router(title_enhancement.router, prefix="/api", dependencies=[Depends(verify_clerk_token)])
 
 
 @app.get("/api/health", response_model=HealthResponse, tags=["Health"])
