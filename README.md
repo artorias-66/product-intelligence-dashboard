@@ -1,80 +1,120 @@
-# Product Intelligence Dashboard
+# ProductIQ
 
-**An end-to-end web application for Flipkart sellers to extract product data from video, validate listing quality, compare competitor prices, and receive actionable alerts.**
+**Product Intelligence Dashboard for e-commerce sellers**
 
-Built as a complete intern assignment submission: deployed frontend + backend, persistent database, async job processing, and a reviewer-friendly demo flow.
+A full-stack platform that turns product videos and catalog feeds into actionable listing intelligence — validation scores, AI-enhanced titles, competitor price comparisons, and real-time alerts.
+
+Built and maintained by [Anubhav Verma](https://www.linkedin.com/in/anubhav-verma-b83787338/).
 
 ![Dashboard Overview](frontend/public/screenshot.png)
 
 ---
 
-## Submission at a Glance
+## Live Demo
 
-| Deliverable | Link |
+| | Link |
 |---|---|
-| **Live Frontend** | [https://product-intelligence-dashboard-nine.vercel.app](https://product-intelligence-dashboard-nine.vercel.app/) |
-| **Live Backend API** | [https://product-intelligence-api-dkuo.onrender.com](https://product-intelligence-api-dkuo.onrender.com) |
-| **Interactive API Docs (Swagger)** | [https://product-intelligence-api-dkuo.onrender.com/api/docs](https://product-intelligence-api-dkuo.onrender.com/api/docs) |
-| **GitHub Repository** | [https://github.com/artorias-66/product-intelligence-dashboard](https://github.com/artorias-66/product-intelligence-dashboard) |
-| **Health Check** | [https://product-intelligence-api-dkuo.onrender.com/api/health](https://product-intelligence-api-dkuo.onrender.com/api/health) |
+| **App** | [https://product-intelligence-dashboard-nine.vercel.app](https://product-intelligence-dashboard-nine.vercel.app/) |
+| **API** | [https://product-intelligence-api-dkuo.onrender.com](https://product-intelligence-api-dkuo.onrender.com) |
+| **Swagger** | [https://product-intelligence-api-dkuo.onrender.com/api/docs](https://product-intelligence-api-dkuo.onrender.com/api/docs) |
+| **Source** | [https://github.com/artorias-66/product-intelligence-dashboard](https://github.com/artorias-66/product-intelligence-dashboard) |
 
-**No login required.** Open the frontend and follow the [5-minute reviewer demo](#5-minute-reviewer-demo) below.
+Sign in with Clerk to access the dashboard. On first visit, use **Seed Sample Data** on the Dashboard to populate your account with demo products, alerts, and pricing data.
 
-> **Note on Render free tier:** The backend may take 30–60 seconds to wake up on first request after idle time. A GitHub Actions cron job pings `/api/health` every 5 minutes to reduce cold starts during review.
+> **Note:** The backend runs on Render's free tier and may take 30–60 seconds to wake up after idle time. A GitHub Actions cron pings `/api/health` every 5 minutes to reduce cold starts.
 
 ---
 
-## 5-Minute Reviewer Demo
+## The Problem
 
-This path exercises the full assignment flow without local setup.
+Marketplace sellers on platforms like Flipkart often have product videos, CSV feeds, competitor price signals, and listing data spread across tools — but no single place to answer three questions:
 
-1. **Open the dashboard** → [Live Frontend](https://product-intelligence-dashboard-nine.vercel.app/)
-2. **Seed sample data** (if the catalog is empty) → Click **Seed Sample Data** on the Dashboard. This loads 25 Flipkart-style products with issues, competitor prices, alerts, and price history.
-3. **Explore quality analytics** → Dashboard shows total products, average quality score, severity breakdown, and quality distribution charts.
-4. **Upload a product video** → Go to **Upload** → use `backend/sample/sample_product_video.mp4` from this repo → enable **Enhance product title** → submit.
-5. **Track the job** → You are redirected to the job detail page. Status progresses through extraction → **Review Needed** (manual edit of AI-extracted fields) → **Processing** → **Completed**.
-6. **Approve extracted data** → Edit any fields in the review form, then click **Approve & Process**. Validation, title enhancement, competitor prices, and alerts run automatically.
-7. **Inspect a product** → Open **Products** → click any SKU → see listing issues, enhanced title (original vs suggested), competitor price comparison, price gap %, recommended action, and price history chart.
-8. **Refresh competitor prices** → On a product detail page or **Competitor Prices** page, click **Refresh Prices**. New simulated prices are generated; significant drops trigger MEDIUM alerts.
-9. **Review alerts** → **Alerts** page shows in-app notification history filtered by severity (HIGH / MEDIUM / LOW).
+1. **Is my listing good enough?** (title, images, attributes, pricing errors)
+2. **Am I priced competitively?** (vs Amazon, Myntra, Ajio, and others)
+3. **What should I fix first?** (prioritized alerts by severity)
 
-**Alternative quick path:** Upload `backend/sample/sample_products.csv` (includes intentionally bad rows to trigger validation issues) instead of a video.
+ProductIQ combines ingestion, validation, AI enhancement, and pricing intelligence into one dashboard.
 
 ---
 
-## Assignment Requirements Coverage
+## Features
 
-All 12 minimum requirements from the assignment brief are implemented.
+### Ingestion & Processing
+- **Video upload** — extract product details from short showcase videos
+- **CSV upload** — bulk import product feeds
+- **Manual entry** — add a single product without a file
+- **Async job pipeline** — background processing with live status, progress (0–100%), and error reporting
+- **Human-in-the-loop review** — edit AI-extracted fields before final processing
 
-| # | Requirement | Status | Where to see it |
-|---|---|---|---|
-| 1 | Upload product video | Done | Upload page → Product Video tab |
-| 2 | Extract/simulate product info from video | Done | OpenCV frame extraction + Tesseract OCR + Groq/Gemini vision; review step on job detail |
-| 3 | CSV fallback + manual edit | Done | Upload → CSV tab or Manual Entry tab; job review form for video extraction |
-| 4 | Validate product data & detect issues | Done | 11 validation rules; issues on product detail page |
-| 5 | Product quality dashboard | Done | Dashboard page with summary metrics and charts |
-| 6 | Title enhancement flag | Done | Toggle on upload form |
-| 7 | Enhanced title suggestions | Done | Product detail → Enhanced Title section |
-| 8 | Competitor prices (mock/CSV/manual) | Done | Auto-generated on ingest; CSV upload on Competitor Prices page |
-| 9 | Price comparison (Flipkart vs competitors) | Done | Product detail → price gap, %, recommended action |
-| 10 | Alerts for listing/pricing issues | Done | Alerts page + dashboard widget |
-| 11 | Job status tracking | Done | Jobs list + job detail with progress 0–100% |
-| 12 | Deploy frontend + backend | Done | Vercel + Render links above |
+### AI Pipeline
+- **OpenCV** middle-frame extraction + **Tesseract OCR** for packaging text
+- **Groq Vision** (primary) + **Gemini 2.5 Flash** (fallback) for product identification
+- **Title enhancement** — SEO-optimized titles with extracted attributes, trend keywords, and reasoning
+- **Rule-based fallbacks** when AI APIs are unavailable or rate-limited
 
-### Bonus features implemented
+### Listing Quality
+- **11 validation rules** with HIGH / MEDIUM / LOW severity classification
+- **Quality score** (0–100) computed from issue severity weights
+- **Dashboard analytics** — issue breakdown, quality distribution charts, downloadable CSV report
 
-| Bonus | Status |
-|---|---|
-| Real OCR from video frames (Tesseract) | Yes |
-| Real AI-based product extraction (Groq Vision + Gemini fallback) | Yes |
-| External notifications (Telegram) | Yes (optional, env-configured) |
-| Scheduled background price refresh (APScheduler, every 12h) | Yes |
-| Price history chart (Recharts) | Yes |
-| Downloadable product quality report (CSV) | Yes — `GET /api/dashboard/quality-report-csv` |
-| Retry failed jobs | Yes — `POST /api/jobs/{job_id}/retry` |
-| Product recommendation engine | Yes — category/brand similarity on product detail |
-| OpenAPI / Swagger documentation | Yes |
-| Dockerized deployment | Yes — `docker-compose.yml` + Dockerfiles |
+### Competitor Pricing
+- Simulated competitor prices across Amazon, Myntra, Ajio, Nykaa Fashion, Tata Cliq, Meesho
+- **Price comparison** — lowest, highest, average, gap %, recommended action
+- **CSV upload** and manual entry for competitor data
+- **Price refresh** (manual + scheduled every 12h) with history tracking and drop alerts
+
+### Alerts & Notifications
+- In-app alert history with severity filters and mark-as-read
+- Rules for critical listing issues, pricing gaps (>10% above lowest competitor), and competitor price drops (>5%)
+- Optional **Telegram** notifications for HIGH-severity events
+
+### Platform
+- **Clerk authentication** — secure sign-in on frontend; JWT verification on every API route
+- **Multi-tenant data isolation** — all products, jobs, and alerts scoped per user
+- **Product recommendations** — similar products by category and brand
+- **Job retry** — recover failed video/CSV jobs from saved draft data
+- **Docker Compose** for local development
+- **OpenAPI / Swagger** auto-generated docs
+
+---
+
+## Screenshots
+
+### Dashboard & Quality Analytics
+
+![Dashboard Overview](frontend/public/1.png)
+![Quality Metrics & Charts](frontend/public/2.png)
+
+### Upload (Video / CSV / Manual)
+
+![Video Upload Form](frontend/public/product_video.png)
+
+### AI Extraction Review
+
+![Extraction Review](frontend/public/4.png)
+
+### Job Tracking
+
+![Jobs List](frontend/public/10.png)
+![Job Processing Progress](frontend/public/3.png)
+
+### Enhanced Titles & Product Detail
+
+![AI Title Enhancement](frontend/public/5.png)
+![Product Detail](frontend/public/6.png)
+
+### Product Catalog
+
+![Product List](frontend/public/7.png)
+
+### Competitor Pricing
+
+![Competitor Price Analysis](frontend/public/8.png)
+![Competitor Price CSV Upload](frontend/public/9.png)
+
+### Alerts
+
+![Alerts](frontend/public/alert.png)
 
 ---
 
@@ -82,63 +122,61 @@ All 12 minimum requirements from the assignment brief are implemented.
 
 ```mermaid
 flowchart TB
-    subgraph Client["Frontend (React + Vite)"]
-        UI[Dashboard / Upload / Jobs / Products / Alerts]
+    subgraph Client["Frontend — React + Vite (ProductIQ UI)"]
+        AUTH[Clerk Auth]
+        UI[Dashboard · Upload · Jobs · Products · Alerts · Pricing]
     end
 
-    subgraph API["Backend (FastAPI)"]
-        R1[Upload Router]
-        R2[Jobs Router]
-        R3[Products Router]
-        R4[Dashboard Router]
-        R5[Competitor Prices Router]
-        R6[Alerts Router]
-        S1[Video Extraction Pipeline]
+    subgraph API["Backend — FastAPI"]
+        JWT[JWT Verification]
+        R1[Upload]
+        R2[Jobs]
+        R3[Products]
+        R4[Dashboard]
+        R5[Competitor Prices]
+        R6[Alerts]
+        S1[Video Extraction]
         S2[Validation Engine]
         S3[Title Enhancement]
-        S4[Alert Rules Engine]
-        S5[Competitor Pricing Service]
-        SCH[APScheduler - 12h price refresh]
+        S4[Alert Rules]
+        S5[Competitor Pricing]
+        SCH[APScheduler — 12h refresh]
     end
 
     subgraph External["External Services"]
+        CLERK[Clerk]
         GROQ[Groq Vision + LLM]
         GEM[Gemini 2.5 Flash]
         TG[Telegram Bot API]
     end
 
-    subgraph Data["PostgreSQL (Neon / Docker)"]
-        DB[(Jobs · Products · Issues · Alerts · CompetitorPrices · PriceHistory · EnhancedTitles)]
+    subgraph Data["PostgreSQL"]
+        DB[(Jobs · Products · Issues · Alerts · Prices · History · Titles)]
     end
 
-    UI -->|REST + polling| API
-    R1 --> S1
+    AUTH --> CLERK
+    UI -->|Bearer JWT| JWT
+    JWT --> API
     S1 --> GROQ
     S1 --> GEM
-    R1 --> S2
-    R3 --> S3
     S3 --> GROQ
     S3 --> GEM
-    S2 --> S4
     S4 --> TG
-    S5 --> DB
-    SCH --> S5
     API --> DB
+    SCH --> S5
 ```
 
-### End-to-end data flow
+### Data flow
 
 ```
-Video/CSV Upload
-    → Create Job (PENDING → RUNNING)
-    → [Video] OpenCV middle-frame → Tesseract OCR → Groq Vision → Gemini fallback
-    → [Video] PENDING_REVIEW (user-approve extracted fields)
-    → Validate (11 rules) → Quality Score
-    → [Optional] Title Enhancement (Groq → Gemini → rule-based fallback)
-    → Generate Competitor Prices (mock simulation)
-    → Generate Alerts (listing + pricing rules)
-    → Job COMPLETED / PARTIALLY_COMPLETED / FAILED
-    → Dashboard + Product Detail + Alerts UI
+Sign in (Clerk) → Upload video/CSV
+    → Job created (scoped to user_id)
+    → [Video] OpenCV frame → Tesseract OCR → Groq Vision → Gemini fallback
+    → PENDING_REVIEW → user edits & approves
+    → Validate (11 rules) → Quality score
+    → [Optional] Title enhancement
+    → Competitor prices generated → Alerts created
+    → Dashboard · Product detail · Alerts UI
 ```
 
 ### Project structure
@@ -147,139 +185,67 @@ Video/CSV Upload
 product-intelligence-dashboard/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py              # FastAPI app, routers, lifespan
-│   │   ├── models.py            # 7 SQLAlchemy tables
-│   │   ├── schemas.py           # Pydantic request/response models
+│   │   ├── auth.py              # Clerk JWT verification
+│   │   ├── main.py              # FastAPI app + router mounting
+│   │   ├── models.py            # SQLAlchemy models (user-scoped)
 │   │   ├── routers/             # upload, jobs, products, dashboard, alerts, pricing
-│   │   └── services/            # video extraction, validation, alerts, AI, pricing
-│   ├── sample/                  # Sample video, product CSV, competitor CSV
-│   ├── Dockerfile
-│   └── requirements.txt
+│   │   └── services/            # extraction, validation, alerts, AI, pricing
+│   ├── sample/                  # Demo video + CSV files
+│   └── Dockerfile
 ├── frontend/
-│   ├── src/pages/               # Dashboard, Upload, Jobs, Products, Alerts, Pricing
-│   ├── src/api/client.js        # Axios API client
+│   ├── src/
+│   │   ├── components/auth/     # Axios JWT interceptor
+│   │   ├── pages/               # Dashboard, Upload, Jobs, Products, Alerts, Pricing
+│   │   └── index.css            # ProductIQ design system
 │   └── Dockerfile
 ├── docker-compose.yml
-├── .github/workflows/keep-alive.yml
-└── README.md
+└── .github/workflows/keep-alive.yml
 ```
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology | Why |
-|---|---|---|
-| **Frontend** | React 18, Vite, React Router, Recharts, Axios | Fast SPA with routing and charting for quality/pricing analytics |
-| **Backend** | FastAPI, Pydantic, SQLAlchemy 2 | Typed async API with auto-generated OpenAPI docs |
-| **Database** | PostgreSQL (Neon serverless in prod; Postgres 15 in Docker locally) | Persistent relational storage for products, jobs, alerts, price history |
-| **Video / OCR** | OpenCV, Tesseract, Pillow | Real frame extraction and local OCR before AI reasoning |
-| **AI** | Groq (Llama 4 Scout vision + Llama 3.3 70B), Gemini 2.5 Flash | Primary + fallback for extraction and title enhancement |
-| **Jobs** | Python `threading` (daemon workers) | Async processing without Redis/Celery overhead for demo scale |
-| **Scheduler** | APScheduler | Automated competitor price refresh every 12 hours |
-| **Notifications** | Telegram Bot API | Optional external alerts for HIGH-severity issues |
-| **Deployment** | Vercel (frontend), Render (backend), Docker Compose (local) | Full cloud deployment + reproducible local environment |
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 18, Vite, React Router, Recharts, Axios, Lucide icons |
+| **UI** | Custom ProductIQ design system (glassmorphism, Inter typography) |
+| **Auth** | Clerk (React SDK + FastAPI JWT verification via JWKS) |
+| **Backend** | FastAPI, Pydantic, SQLAlchemy 2 |
+| **Database** | PostgreSQL (Neon in production; Postgres 15 via Docker locally) |
+| **Video / OCR** | OpenCV, Tesseract, Pillow |
+| **AI** | Groq (Llama 4 Scout vision + Llama 3.3 70B), Gemini 2.5 Flash |
+| **Jobs** | Python daemon threads with polling UI |
+| **Scheduler** | APScheduler (12-hour competitor price refresh) |
+| **Notifications** | Telegram Bot API (optional) |
+| **Deployment** | Vercel (frontend), Render (backend), Docker Compose (local) |
 
 ---
 
-## Application Walkthrough (Screenshots)
+## Quick Start (Live App)
 
-Visual tour of the deployed app — maps directly to the assignment user flow (upload → process → validate → compare → alert).
+1. Open the [live app](https://product-intelligence-dashboard-nine.vercel.app/) and sign in with Clerk.
+2. If your catalog is empty, click **Seed Sample Data** on the Dashboard.
+3. Explore products, alerts, and pricing analytics.
+4. Go to **Upload** → upload `backend/sample/sample_product_video.mp4` with **Enhance product title** enabled.
+5. On the job detail page, review extracted fields → **Approve & Process**.
+6. Open the product from **Products** to see validation issues, enhanced title, and competitor comparison.
+7. Click **Refresh Prices** to simulate market updates and trigger new alerts.
 
-### 1. Dashboard & Quality Analytics
-
-Bird's-eye view of catalog health: total products, average quality score, severity breakdown, and distribution charts.
-
-![Dashboard Overview](frontend/public/1.png)
-![Quality Metrics & Charts](frontend/public/2.png)
-
-### 2. Video & CSV Upload
-
-Upload a product video (primary path), CSV feed (fallback), or manual entry. Toggle **Enhance product title** before submitting.
-
-![Video Upload Form](frontend/public/product_video.png)
-
-### 3. AI Extraction Review
-
-After video upload, the system extracts product data via OpenCV + OCR + AI. Low-confidence results land in **Review Needed** — edit fields before approving.
-
-![Extraction Review — Edit Before Approve](frontend/public/4.png)
-
-### 4. Job Tracking
-
-Monitor async jobs with live progress (0–100%), status badges, and timestamps.
-
-![Jobs List](frontend/public/10.png)
-![Job Processing Progress](frontend/public/3.png)
-
-### 5. Enhanced Titles & Product Detail
-
-When title enhancement is enabled, see original title, extracted attributes, suggested keywords, and the AI-generated enhanced title with reasoning.
-
-![AI Title Enhancement](frontend/public/5.png)
-![Product Detail — Issues & Attributes](frontend/public/6.png)
-
-### 6. Product Catalog
-
-Browse all products with filters for category, quality score, and search. Weak listings surface quickly.
-
-![Product List with Filters](frontend/public/7.png)
-
-### 7. Competitor Price Comparison
-
-Compare Flipkart price against Amazon, Myntra, Ajio, and others. View price gap, recommended action, and historical trends.
-
-![Competitor Price Analysis](frontend/public/8.png)
-![Competitor Price CSV Upload](frontend/public/9.png)
-
-### 8. Alerts & Notifications
-
-In-app alert history for critical listing issues and pricing anomalies, grouped by severity.
-
-![Alerts — Listing & Pricing Issues](frontend/public/alert.png)
-
----
-
-## Using the Deployed App
-
-### First visit
-
-1. Open the [live frontend](https://product-intelligence-dashboard-nine.vercel.app/).
-2. If the product list is empty, click **Seed Sample Data** on the Dashboard (calls `POST /api/seed`).
-3. Browse seeded products, alerts, and pricing data immediately.
-
-### Upload workflow
-
-**Video (primary path)**
-
-1. Upload → **Product Video** tab.
-2. Select a short `.mp4` product video (sample: `backend/sample/sample_product_video.mp4`).
-3. Optionally add a **video hint** (e.g., "Nike blue running shoes") to improve extraction accuracy.
-4. Toggle **Enhance product title** on/off.
-5. After upload, review AI-extracted fields on the job page → edit if needed → **Approve & Process**.
-
-**CSV fallback**
-
-1. Upload → **Product CSV** tab → use `backend/sample/sample_products.csv`.
-2. Processing runs in the background; track progress on the Jobs page.
-
-**Manual entry**
-
-1. Upload → **Manual Entry** tab → fill product fields → submits as a one-row CSV internally.
-
-### Competitor pricing
-
-- Prices are **auto-generated** when products are processed (mock data across Amazon, Myntra, Ajio, Nykaa Fashion, Tata Cliq, Meesho).
-- Upload real/mock competitor data via **Competitor Prices** → CSV upload using `backend/sample/sample_competitor_prices.csv`.
-- **Refresh Prices** (per product or bulk) simulates market movement and logs price history; drops >5% create MEDIUM alerts.
+**Alternative:** Upload `backend/sample/sample_products.csv` for a faster CSV-only flow.
 
 ---
 
 ## Running Locally
 
-### Option A — Docker Compose (recommended)
+### Prerequisites
 
-**Prerequisites:** Docker and Docker Compose.
+- Docker & Docker Compose, **or** Node 18+ and Python 3.11
+- [Clerk](https://clerk.com) application (publishable + secret keys)
+- Groq and/or Gemini API keys (for AI features)
+- System packages for backend: `tesseract-ocr`, `ffmpeg`, `libgl1`
+
+### Docker Compose (recommended)
 
 ```bash
 git clone https://github.com/artorias-66/product-intelligence-dashboard.git
@@ -289,23 +255,22 @@ cd product-intelligence-dashboard
 Create `backend/.env`:
 
 ```env
-# Required for Clerk Authentication (Backend)
-CLERK_SECRET_KEY=your_clerk_secret_key
+CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+GROQ_API_KEY=your_groq_key
+GEMINI_API_KEY=your_gemini_key
 
-# Required for AI video extraction and title enhancement
-GROQ_API_KEY=your_groq_api_key
-GEMINI_API_KEY=your_gemini_api_key
-
-# Optional — Telegram alerts
+# Optional
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
-
-# Docker Compose sets DATABASE_URL automatically to local Postgres
-# For Neon/cloud Postgres instead, set:
-# DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
 ```
 
-Start all services:
+Create `frontend/.env`:
+
+```env
+VITE_API_URL=http://localhost:8000
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
+```
 
 ```bash
 docker-compose up -d --build
@@ -314,32 +279,24 @@ docker-compose up -d --build
 | Service | URL |
 |---|---|
 | Frontend | http://localhost |
-| Backend API | http://localhost:8000 |
-| Swagger UI | http://localhost:8000/api/docs |
+| Backend | http://localhost:8000 |
+| Swagger | http://localhost:8000/api/docs |
 | Postgres | localhost:5433 |
 
-### Option B — Run services individually
+### Manual setup
 
 **Backend**
 
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# Install system deps: tesseract-ocr, ffmpeg, libgl1 (for OpenCV)
 export DATABASE_URL=postgresql://postgres:password@localhost:5433/product_intel
 uvicorn app.main:app --reload --port 8000
 ```
 
 **Frontend**
-
-Create `frontend/.env`:
-```env
-VITE_API_URL=http://localhost:8000
-VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-```
 
 ```bash
 cd frontend
@@ -350,234 +307,168 @@ npm run dev
 
 ---
 
-## API Documentation
+## API Reference
 
-Full interactive docs: **[Swagger UI](https://product-intelligence-api-dkuo.onrender.com/api/docs)**
+Interactive docs: **[Swagger UI](https://product-intelligence-api-dkuo.onrender.com/api/docs)**
 
-### Core endpoints
+All routes under `/api` (except `/api/health`) require a Clerk JWT:
 
-| Method | Endpoint | Purpose |
+```
+Authorization: Bearer <clerk_session_token>
+```
+
+| Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/health` | Health check + DB connectivity |
-| `POST` | `/api/upload-video` | Upload video; returns `job_id` |
-| `POST` | `/api/upload-products-csv` | Upload product feed CSV; returns `job_id` |
-| `GET` | `/api/jobs` | List jobs (filter by status, type) |
-| `GET` | `/api/jobs/{job_id}` | Job status, progress, draft data, products |
-| `POST` | `/api/jobs/{job_id}/approve` | Approve video extraction → resume processing |
-| `POST` | `/api/jobs/{job_id}/retry` | Retry a FAILED job with saved draft data |
-| `GET` | `/api/products` | List products (pagination, filters, search) |
-| `GET` | `/api/products/{sku_id}` | Product detail + issues + enhanced titles + competitor prices |
-| `PUT` | `/api/products/{sku_id}` | Update product; re-runs validation and alerts |
-| `GET` | `/api/products/{sku_id}/recommendations` | Similar products by category/brand |
-| `POST` | `/api/products/{sku_id}/enhance-title` | Generate/regenerate enhanced title |
-| `GET` | `/api/dashboard/quality-summary` | Dashboard aggregate metrics |
-| `GET` | `/api/dashboard/quality-report-csv` | Download full quality report |
-| `POST` | `/api/competitor-prices/upload-csv` | Upload competitor price CSV |
-| `POST` | `/api/competitor-prices/refresh` | Bulk refresh all product prices |
-| `POST` | `/api/competitor-prices/product/{sku_id}/refresh` | Refresh prices for one SKU |
-| `GET` | `/api/competitor-prices/product/{sku_id}` | Current competitor prices |
-| `GET` | `/api/competitor-prices/product/{sku_id}/history` | Price history for charts |
-| `GET` | `/api/alerts` | List alerts (filter by severity, read status) |
-| `PUT` | `/api/alerts/{alert_id}/read` | Mark alert as read |
-| `POST` | `/api/alerts/rules` | Create manual alert |
-| `POST` | `/api/seed` | Seed demo data |
-| `POST` | `/api/reset` | Reset database (admin) |
-
-### Example: upload video
-
-```bash
-curl -X POST "https://product-intelligence-api-dkuo.onrender.com/api/upload-video" \
-  -F "file=@backend/sample/sample_product_video.mp4" \
-  -F "enhance_titles=true" \
-  -F "video_hint=Nike blue running shoes"
-```
-
-Response:
-
-```json
-{
-  "job_id": "uuid-here",
-  "message": "Analyzing video ...",
-  "status": "PROCESSING"
-}
-```
-
-Poll `GET /api/jobs/{job_id}` until status is `PENDING_REVIEW`, then approve via UI or API.
+| `GET` | `/api/health` | Health check (no auth) |
+| `POST` | `/api/upload-video` | Upload video → returns `job_id` |
+| `POST` | `/api/upload-products-csv` | Upload product CSV |
+| `GET` | `/api/jobs` | List user's jobs |
+| `GET` | `/api/jobs/{job_id}` | Job status, progress, draft data |
+| `POST` | `/api/jobs/{job_id}/approve` | Approve video extraction |
+| `POST` | `/api/jobs/{job_id}/retry` | Retry a failed job |
+| `GET` | `/api/products` | List products (paginated, filterable) |
+| `GET` | `/api/products/{sku_id}` | Product detail + issues + prices |
+| `PUT` | `/api/products/{sku_id}` | Update product (re-validates) |
+| `POST` | `/api/products/{sku_id}/enhance-title` | Generate enhanced title |
+| `GET` | `/api/dashboard/quality-summary` | Dashboard metrics |
+| `GET` | `/api/dashboard/quality-report-csv` | Download quality report |
+| `POST` | `/api/competitor-prices/upload-csv` | Upload competitor prices |
+| `POST` | `/api/competitor-prices/refresh` | Bulk price refresh |
+| `POST` | `/api/competitor-prices/product/{sku_id}/refresh` | Refresh one SKU |
+| `GET` | `/api/alerts` | List alerts |
+| `POST` | `/api/seed` | Seed demo data for current user |
 
 ---
 
 ## Data Model
 
-PostgreSQL schema with 7 tables:
+PostgreSQL with 7 tables. Jobs, products, and alerts are scoped by `user_id` for multi-tenant isolation.
 
-| Table | Purpose | Key fields |
-|---|---|---|
-| `jobs` | Async ingestion tracking | `status`, `progress`, `type`, `draft_data`, `enhance_titles`, timestamps |
-| `products` | Flipkart seller listings | `sku_id`, `product_title`, `brand`, `category`, `price`, `mrp`, attributes, `quality_score` |
-| `product_issues` | Validation findings | `issue_type`, `severity`, `message`, `suggested_fix` |
-| `enhanced_titles` | AI-generated title variants | `original_title`, `extracted_attributes`, `suggested_keywords`, `enhanced_title`, `reason` |
-| `competitor_prices` | Latest competitor snapshots | `platform`, `competitor_price`, `competitor_url`, `last_checked_at` |
-| `price_history` | Historical price points | `platform`, `price`, `checked_at` |
-| `alerts` | In-app (+ optional Telegram) notifications | `type`, `severity`, `title`, `message`, `is_read` |
-
-**Job statuses:** `PENDING` → `RUNNING` → `PENDING_REVIEW` (video only) → `PROCESSING` → `COMPLETED` | `PARTIALLY_COMPLETED` | `FAILED`
-
----
-
-## Validation Rules (11 rules)
-
-| Issue | Severity | Trigger |
-|---|---|---|
-| Missing title | HIGH | Empty or whitespace title |
-| Very short title | MEDIUM | Title &lt; 20 characters |
-| Missing brand | MEDIUM | No brand provided |
-| Invalid price | HIGH | Missing, non-numeric, or ≤ 0 |
-| MRP &lt; selling price | HIGH | MRP lower than price |
-| Missing image | HIGH | No `image_url` |
-| Broken image URL | MEDIUM | URL doesn't start with `http://` or `https://` |
-| Duplicate SKU | HIGH | Same `sku_id` exists on another product |
-| Weak description | LOW | Missing or &lt; 50 characters |
-| Missing attributes | MEDIUM | Color, size, and material all missing |
-| Out of stock | LOW | Availability is out_of_stock / unavailable |
-
-**Quality score:** Starts at 100; deductions by severity (HIGH −15, MEDIUM −8, LOW −3). Clamped to 0–100.
-
----
-
-## Alert Rules
-
-| Condition | Severity | Alert type |
-|---|---|---|
-| Missing title, invalid price, missing image, duplicate SKU, MRP error | HIGH | Critical listing issue |
-| Short title, missing brand/attributes, broken image URL | MEDIUM | Listing improvement needed |
-| Weak description, out of stock | LOW | Minor listing issue |
-| Flipkart price &gt; 10% above lowest competitor | HIGH | Price not competitive |
-| Competitor price drops &gt; 5% on refresh | MEDIUM | Competitor price drop detected |
-
-Telegram notifications fire for HIGH-severity listing and pricing alerts when `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are configured.
-
----
-
-## Sample Files
-
-| File | Purpose |
+| Table | Purpose |
 |---|---|
-| [`backend/sample/sample_product_video.mp4`](backend/sample/sample_product_video.mp4) | Primary input — short product showcase video |
-| [`backend/sample/sample_products.csv`](backend/sample/sample_products.csv) | Product feed with good + intentionally bad rows (invalid price, duplicate SKU, missing fields) |
-| [`backend/sample/sample_competitor_prices.csv`](backend/sample/sample_competitor_prices.csv) | Competitor prices across Amazon, Myntra, Ajio, etc. |
+| `jobs` | Async ingestion — status, progress, draft data, timestamps |
+| `products` | Seller listings — SKU, title, brand, price, attributes, quality score |
+| `product_issues` | Validation findings — type, severity, suggested fix |
+| `enhanced_titles` | AI-generated titles — attributes, keywords, reason |
+| `competitor_prices` | Latest competitor snapshots per platform |
+| `price_history` | Historical price points for charts |
+| `alerts` | Notifications — severity, type, read status |
 
-The seeded dataset (`POST /api/seed`) creates **25 products** (15 healthy, 5 medium-issue, 5 critical-issue) with competitor prices, price history, alerts, and enhanced titles — useful for immediate dashboard exploration.
+**Job statuses:** `PENDING` → `RUNNING` → `PENDING_REVIEW` (video) → `PROCESSING` → `COMPLETED` | `PARTIALLY_COMPLETED` | `FAILED`
 
 ---
 
-## What Is Real vs Mocked
+## Business Logic
 
-### Real / fully functional
+### Validation rules (11)
 
-| Component | Details |
+| Issue | Severity |
 |---|---|
-| **Video pipeline** | OpenCV extracts the middle frame; Tesseract runs local OCR; Groq Vision (primary) and Gemini 2.5 Flash (fallback) interpret the frame + OCR text |
-| **Title enhancement** | Groq LLM → Gemini → deterministic rule-based fallback |
-| **Validation & scoring** | All 11 rules execute server-side against PostgreSQL data |
-| **Job processing** | Background threads with real status/progress tracking and polling UI |
-| **Database** | Persistent PostgreSQL (Neon in production) |
-| **Price history** | Stored and charted on every refresh |
-| **Scheduled refresh** | APScheduler runs every 12 hours on backend startup |
-| **API documentation** | Auto-generated OpenAPI/Swagger |
-| **Keep-alive** | GitHub Action pings Render every 5 minutes |
+| Missing title | HIGH |
+| Very short title (<20 chars) | MEDIUM |
+| Missing brand | MEDIUM |
+| Invalid price | HIGH |
+| MRP < selling price | HIGH |
+| Missing image | HIGH |
+| Broken image URL | MEDIUM |
+| Duplicate SKU | HIGH |
+| Weak description | LOW |
+| Missing attributes (color, size, material) | MEDIUM |
+| Out of stock | LOW |
 
-### Mocked / simulated (by design)
+Quality score starts at 100; deductions: HIGH −15, MEDIUM −8, LOW −3.
 
-| Component | Details |
+### Alert rules
+
+| Trigger | Severity |
 |---|---|
-| **Competitor prices** | Generated with realistic ±15–20% variation from our Flipkart price; no live scraping (assignment explicitly allows mocks; avoids legal/ToS issues) |
-| **Authentication** | Fully integrated using Clerk (React frontend + FastAPI backend JWT verification) |
+| Critical listing issues (missing title, invalid price, etc.) | HIGH |
+| Flipkart price >10% above lowest competitor | HIGH |
+| Weak title, missing attributes, broken image | MEDIUM |
+| Competitor price drop >5% on refresh | MEDIUM |
+| Weak description, out of stock | LOW |
 
 ---
 
-## Assumptions
+## Sample Data
 
-1. **Seller context:** We are a Flipkart seller; our price is stored in `products.price`; competitors are Amazon, Myntra, Ajio, Nykaa Fashion, Tata Cliq, Meesho.
-2. **Video input:** Short (&lt;60s) `.mp4` product videos where the product is visible in the middle frame.
-3. **Scale:** Internal B2B dashboard for catalog quality review — not high-concurrency consumer traffic.
-4. **AI availability:** Groq/Gemini free tiers may rate-limit; fallbacks (Gemini retry with backoff, rule-based title, honest extraction placeholder + manual review) keep the flow unblocked.
-
----
-
-## Trade-offs and Limitations
-
-| Trade-off | Rationale |
+| File | Description |
 |---|---|
-| **Single middle frame** | Reduces API cost and latency vs multi-frame analysis; may miss products only shown at start/end of video |
-| **Polling vs WebSockets** | Simpler on serverless/free-tier hosts (Vercel + Render); frontend polls jobs every 1.5s |
-| **Threading vs Celery/Redis** | Sufficient for demo scale; avoids extra infrastructure on free tier |
-| **Mock competitor data** | Reliable, legal, and assignment-compliant vs fragile live scraping |
-| **Render cold starts** | Free tier sleeps after inactivity; mitigated by keep-alive cron but first request may still lag |
+| [`backend/sample/sample_product_video.mp4`](backend/sample/sample_product_video.mp4) | Short product showcase video |
+| [`backend/sample/sample_products.csv`](backend/sample/sample_products.csv) | Product feed with good and intentionally bad rows |
+| [`backend/sample/sample_competitor_prices.csv`](backend/sample/sample_competitor_prices.csv) | Competitor prices across platforms |
+
+The **Seed Sample Data** button creates 25 demo products (healthy, medium-issue, and critical-issue) scoped to your account.
 
 ---
 
-## What I Would Improve With More Time
+## What's Real vs Simulated
 
-1. **Multi-frame video analysis** — sample frames across the timeline for better extraction on fast-moving product shots.
-2. **Inline product editing in the UI** — edit listing fields directly from the product detail page (API `PUT /products/{sku_id}` already exists).
-3. **Celery + Redis job queue** — durable background workers with retry policies and horizontal scaling.
-4. **Live competitor price feeds** — official marketplace APIs or licensed data providers instead of simulation.
-5. **Multi-tenant support** — Currently authentication is integrated via Clerk, but database row-level security so each seller sees only their catalog would be the next step.
-6. **WebSocket job updates** — eliminate polling overhead for real-time progress.
-7. **Bulk export & reporting** — PDF quality reports and scheduled email digests for operations teams.
+| Real | Simulated |
+|---|---|
+| Video frame extraction + OCR | Competitor prices (mock ±15–20% variation; no live scraping) |
+| Groq / Gemini AI extraction & titles | |
+| Validation, scoring, alerts | |
+| Clerk auth + per-user data isolation | |
+| Job processing with progress tracking | |
+| Price history on refresh | |
+| Scheduled 12h price refresh | |
+| Telegram notifications (when configured) | |
+
+Competitor pricing uses simulated data by design — reliable, legal, and avoids fragile marketplace scraping.
 
 ---
 
 ## Environment Variables
 
+### Backend
+
 | Variable | Required | Description |
 |---|---|---|
 | `DATABASE_URL` | Yes (prod) | PostgreSQL connection string |
-| `VITE_CLERK_PUBLISHABLE_KEY` | Yes (frontend) | Clerk publishable key for React authentication |
-| `CLERK_PUBLISHABLE_KEY` | Yes (backend) | Clerk publishable key for backend JWT verification |
-| `CLERK_SECRET_KEY` | Yes (backend) | Clerk secret key for backend JWT verification |
-| `GROQ_API_KEY` | Recommended | Primary AI for vision extraction and title enhancement |
-| `GEMINI_API_KEY` | Recommended | Fallback AI when Groq is unavailable |
-| `TELEGRAM_BOT_TOKEN` | Optional | Telegram bot token for external alerts |
-| `TELEGRAM_CHAT_ID` | Optional | Target chat ID for Telegram notifications |
-| `CORS_ORIGINS` | Optional | Comma-separated allowed origins (default: `*`) |
+| `CLERK_PUBLISHABLE_KEY` | Yes | Clerk publishable key (JWKS URL derivation) |
+| `CLERK_SECRET_KEY` | Yes | Clerk secret key |
+| `GROQ_API_KEY` | Recommended | Primary AI for vision + titles |
+| `GEMINI_API_KEY` | Recommended | Fallback AI |
+| `TELEGRAM_BOT_TOKEN` | Optional | Telegram alerts |
+| `TELEGRAM_CHAT_ID` | Optional | Telegram chat ID |
+| `CORS_ORIGINS` | Optional | Allowed origins (comma-separated) |
+
+### Frontend
+
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_CLERK_PUBLISHABLE_KEY` | Yes | Clerk publishable key |
+| `VITE_API_URL` | Yes | Backend API base URL |
+
+### Deployment
+
+**Vercel (frontend):** `VITE_API_URL`, `VITE_CLERK_PUBLISHABLE_KEY`
+
+**Render / Railway (backend):** `DATABASE_URL`, `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `CORS_ORIGINS`
 
 ---
 
-## Deployment Environment Variables
+## Roadmap
 
-When deploying the app to platforms like Vercel (Frontend), Railway, Render, or a VPS (Backend), ensure the following environment variables are set:
-
-### Frontend (Vercel)
-| Variable | Purpose | Example |
-|---|---|---|
-| `VITE_API_URL` | Points to your backend API URL | `https://your-backend.onrender.com` |
-| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk Auth publishable key | `pk_test_...` |
-
-### Backend (Railway / Render / VPS)
-| Variable | Purpose | Example |
-|---|---|---|
-| `CLERK_SECRET_KEY` | Clerk Auth secret key | `sk_test_...` |
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host/db?sslmode=require` |
-| `GROQ_API_KEY` | Groq API Key for Vision processing | `gsk_...` |
-| `GEMINI_API_KEY` | Gemini API Key for title enhancement | `AIzaSy...` |
-| `CORS_ORIGINS` | Allowed frontend origins | `https://your-frontend.vercel.app` |
-
----
-
-## Implementation Summary (for reviewers)
-
-**Fully implemented:** Complete upload-to-dashboard pipeline, 11 validation rules, quality scoring, AI video extraction with human review step, title enhancement toggle, competitor price comparison with refresh + history, alert engine with severity tiers, job tracking with retry, Docker + cloud deployment, Swagger docs, sample inputs, seed data, and Clerk authentication.
-
-**Mocked by choice:** Competitor price fetching (simulated data + CSV upload).
-
-**Differentiators:** Real OCR + vision AI pipeline (not pure mock extraction), hybrid Groq/Gemini with fallbacks, manual review gate after video extraction, Telegram integration, scheduled price refresh, downloadable quality CSV, and a one-click seed for instant demo.
+- [ ] Multi-frame video analysis for better extraction accuracy
+- [ ] Inline product editing on the product detail page
+- [ ] Celery + Redis for durable background job queues
+- [ ] Live competitor price feeds via official marketplace APIs
+- [ ] WebSocket-based job progress (replace polling)
+- [ ] PDF quality reports and scheduled email digests
+- [ ] Row-level security policies at the database layer
 
 ---
 
 ## Author
 
-**Anubhav Verma**  
+**Anubhav Verma**
+
 [LinkedIn](https://www.linkedin.com/in/anubhav-verma-b83787338/) · [GitHub](https://github.com/artorias-66)
 
-Product Intelligence Dashboard — Intern Assignment Submission
+---
+
+## License
+
+This project is open source for portfolio and learning purposes. Feel free to explore the code and architecture.
