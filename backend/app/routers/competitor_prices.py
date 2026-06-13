@@ -21,12 +21,13 @@ from app.services.competitor_pricing import (
     refresh_competitor_prices,
 )
 from app.services.alerts import generate_alerts_for_product, generate_price_drop_alert
+from app.auth import verify_clerk_token
 
 router = APIRouter(prefix="/competitor-prices", tags=["Competitor Prices"])
 
 
 @router.post("/refresh")
-def refresh_all_competitor_prices(db: Session = Depends(get_db)):
+def refresh_all_competitor_prices(db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Refresh competitor prices for ALL products in the database (runs in background)."""
     import threading
     from app.models import Product as Prod
@@ -35,7 +36,7 @@ def refresh_all_competitor_prices(db: Session = Depends(get_db)):
     def _do_refresh():
         bdb = SessionLocal()
         try:
-            products = bdb.query(Prod).filter(Prod.price.isnot(None)).limit(100).all()
+            products = bdb.query(Prod).filter(Prod.price.isnot(None), Prod.user_id == current_user_id).limit(100).all()
             for product in products:
                 try:
                     old_prices = {
@@ -61,9 +62,9 @@ def refresh_all_competitor_prices(db: Session = Depends(get_db)):
 
 
 @router.get("/product/{sku_id}", response_model=list[CompetitorPriceResponse])
-def get_competitor_prices_by_product(sku_id: str, db: Session = Depends(get_db)):
+def get_competitor_prices_by_product(sku_id: str, db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Get all competitor prices for a product by SKU ID."""
-    product = db.query(Product).filter(Product.sku_id == sku_id).first()
+    product = db.query(Product).filter(Product.sku_id == sku_id, Product.user_id == current_user_id).first()
     if not product:
         raise HTTPException(status_code=404, detail=f"Product with SKU '{sku_id}' not found.")
 
@@ -82,9 +83,10 @@ def get_price_history(
     platform: Optional[str] = Query(None),
     limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
+    current_user_id: str = Depends(verify_clerk_token),
 ):
     """Get price history for a product, optionally filtered by platform."""
-    product = db.query(Product).filter(Product.sku_id == sku_id).first()
+    product = db.query(Product).filter(Product.sku_id == sku_id, Product.user_id == current_user_id).first()
     if not product:
         raise HTTPException(status_code=404, detail=f"Product with SKU '{sku_id}' not found.")
 
@@ -97,9 +99,9 @@ def get_price_history(
 
 
 @router.post("/product/{sku_id}/generate", response_model=list[CompetitorPriceResponse])
-def generate_prices_for_product(sku_id: str, db: Session = Depends(get_db)):
+def generate_prices_for_product(sku_id: str, db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Generate mock competitor prices for a product."""
-    product = db.query(Product).filter(Product.sku_id == sku_id).first()
+    product = db.query(Product).filter(Product.sku_id == sku_id, Product.user_id == current_user_id).first()
     if not product:
         raise HTTPException(status_code=404, detail=f"Product with SKU '{sku_id}' not found.")
 
@@ -108,9 +110,9 @@ def generate_prices_for_product(sku_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/product/{sku_id}/refresh", response_model=list[CompetitorPriceResponse])
-def refresh_prices_for_product(sku_id: str, db: Session = Depends(get_db)):
+def refresh_prices_for_product(sku_id: str, db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Refresh competitor prices for a product and check for price drops."""
-    product = db.query(Product).filter(Product.sku_id == sku_id).first()
+    product = db.query(Product).filter(Product.sku_id == sku_id, Product.user_id == current_user_id).first()
     if not product:
         raise HTTPException(status_code=404, detail=f"Product with SKU '{sku_id}' not found.")
 
@@ -137,6 +139,7 @@ def refresh_prices_for_product(sku_id: str, db: Session = Depends(get_db)):
 def upload_competitor_prices_csv(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
+    current_user_id: str = Depends(verify_clerk_token),
 ):
     """Upload competitor prices from a CSV file."""
     if not file.filename or not file.filename.endswith(".csv"):
@@ -158,7 +161,7 @@ def upload_competitor_prices_csv(
 
     for row in rows:
         sku = row.get("sku_id", row.get("SKU", ""))
-        product = db.query(Product).filter(Product.sku_id == sku).first()
+        product = db.query(Product).filter(Product.sku_id == sku, Product.user_id == current_user_id).first()
         if not product:
             continue
 

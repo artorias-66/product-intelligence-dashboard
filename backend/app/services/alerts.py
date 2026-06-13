@@ -30,6 +30,7 @@ def generate_alerts_for_product(product: Product, db: Session) -> list[Alert]:
     if critical_issues:
         issue_list = ", ".join(set(i.issue_type for i in critical_issues))
         alert = Alert(
+            user_id=product.user_id,
             product_id=product.id,
             type="listing_issue",
             severity="HIGH",
@@ -53,6 +54,7 @@ def generate_alerts_for_product(product: Product, db: Session) -> list[Alert]:
     if improvement_issues:
         issue_list = ", ".join(set(i.issue_type for i in improvement_issues))
         alert = Alert(
+            user_id=product.user_id,
             product_id=product.id,
             type="listing_improvement",
             severity="MEDIUM",
@@ -68,6 +70,7 @@ def generate_alerts_for_product(product: Product, db: Session) -> list[Alert]:
     if minor_issues:
         issue_list = ", ".join(set(i.issue_type for i in minor_issues))
         alert = Alert(
+            user_id=product.user_id,
             product_id=product.id,
             type="minor_issue",
             severity="LOW",
@@ -95,6 +98,7 @@ def generate_alerts_for_product(product: Product, db: Session) -> list[Alert]:
             if product.price > lowest * 1.10:
                 pct = round(((product.price - lowest) / lowest) * 100, 1)
                 alert = Alert(
+                    user_id=product.user_id,
                     product_id=product.id,
                     type="price_competitive",
                     severity="HIGH",
@@ -135,6 +139,7 @@ def generate_price_drop_alert(
     drop_pct = ((old_price - new_price) / old_price) * 100
     if drop_pct > 5:
         alert = Alert(
+            user_id=product.user_id,
             product_id=product.id,
             type="competitor_price_drop",
             severity="MEDIUM",

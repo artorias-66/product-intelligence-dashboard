@@ -10,11 +10,12 @@ from sqlalchemy import desc
 from app.database import get_db
 from app.models import Job, Product
 from app.schemas import JobResponse, JobListResponse
+from app.auth import verify_clerk_token
 
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
 
 # Background task logic for processing approved products
-def _process_approved_products(job_id: str, products_data: list):
+def _process_approved_products(job_id: str, products_data: list, user_id: str):
     import threading
     from app.database import SessionLocal
     from app.models import Job, Product
@@ -40,6 +41,7 @@ def _process_approved_products(job_id: str, products_data: list):
             processed = 0
             for item in products_data:
                 product = Product(
+                    user_id=user_id,
                     job_id=job.id,
                     sku_id=item.get("sku_id"),
                     product_title=item.get("product_title"),
@@ -104,9 +106,10 @@ def list_jobs(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
+    current_user_id: str = Depends(verify_clerk_token),
 ):
     """List all jobs with optional filtering."""
-    query = db.query(Job)
+    query = db.query(Job).filter(Job.user_id == current_user_id)
 
     if status:
         query = query.filter(Job.status == status.upper())
@@ -131,9 +134,9 @@ def list_jobs(
 
 
 @router.get("/{job_id}")
-def get_job(job_id: UUID, db: Session = Depends(get_db)):
+def get_job(job_id: UUID, db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Get details of a specific job including its processed products."""
-    job = db.query(Job).filter(Job.id == job_id).first()
+    job = db.query(Job).filter(Job.id == job_id, Job.user_id == current_user_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found.")
 
@@ -162,9 +165,9 @@ def get_job(job_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/{job_id}/approve")
-def approve_job(job_id: UUID, products_data: list[dict], db: Session = Depends(get_db)):
+def approve_job(job_id: UUID, products_data: list[dict], db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Approve extracted products and resume processing."""
-    job = db.query(Job).filter(Job.id == job_id).first()
+    job = db.query(Job).filter(Job.id == job_id, Job.user_id == current_user_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found.")
 
@@ -172,15 +175,15 @@ def approve_job(job_id: UUID, products_data: list[dict], db: Session = Depends(g
         raise HTTPException(status_code=400, detail=f"Job is in status '{job.status}', expected 'PENDING_REVIEW'.")
 
     # Start the background processing thread
-    _process_approved_products(str(job_id), products_data)
+    _process_approved_products(str(job_id), products_data, current_user_id)
 
     return {"message": "Job approved and processing resumed."}
 
 
 @router.post("/{job_id}/retry")
-def retry_failed_job(job_id: UUID, db: Session = Depends(get_db)):
+def retry_failed_job(job_id: UUID, db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Retry a failed job. Resets it to PENDING_REVIEW if draft data is available."""
-    job = db.query(Job).filter(Job.id == job_id).first()
+    job = db.query(Job).filter(Job.id == job_id, Job.user_id == current_user_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found.")
 

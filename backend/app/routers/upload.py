@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db, SessionLocal
 from app.models import Product
 from app.schemas import UploadResponse
+from app.auth import verify_clerk_token
 from app.services.job_processor import create_job, start_job, update_job_progress, complete_job, fail_job
 from app.services.validation import validate_and_save_issues
 from app.services.title_enhancement import enhance_product_title
@@ -24,7 +25,7 @@ router = APIRouter(tags=["Upload"])
 
 # ─── Background processing functions ──────────────────────────────────────────
 
-def _process_csv_rows(job_id: str, rows: list, enhance_titles: bool, filename: str):
+def _process_csv_rows(job_id: str, rows: list, enhance_titles: bool, filename: str, user_id: str):
     """Process CSV rows in background thread with its own DB session."""
     db = SessionLocal()
     try:
@@ -39,6 +40,7 @@ def _process_csv_rows(job_id: str, rows: list, enhance_titles: bool, filename: s
             try:
                 sku = row.get("sku_id", row.get("SKU", row.get("sku", f"SKU-{uuid.uuid4().hex[:8]}")))
                 product = Product(
+                    user_id=user_id,
                     job_id=job.id,
                     sku_id=sku,
                     product_title=row.get("product_title", row.get("title", row.get("name", None))) or None,
@@ -154,6 +156,7 @@ def upload_products_csv(
     file: UploadFile = File(...),
     enhance_titles: bool = Form(False),
     db: Session = Depends(get_db),
+    current_user_id: str = Depends(verify_clerk_token),
 ):
     """Upload a CSV file. Returns job_id immediately; processing happens in background."""
     if not file.filename or not file.filename.endswith(".csv"):
@@ -174,6 +177,7 @@ def upload_products_csv(
     job = create_job(
         db,
         job_type="csv_upload",
+        user_id=current_user_id,
         file_name=file.filename,
         enhance_titles=enhance_titles,
         total_products=len(rows),
@@ -186,7 +190,7 @@ def upload_products_csv(
     # Run processing in a daemon background thread (works without celery/redis)
     t = threading.Thread(
         target=_process_csv_rows,
-        args=(job_id, rows, enhance_titles, file.filename),
+        args=(job_id, rows, enhance_titles, file.filename, current_user_id),
         daemon=True,
     )
     t.start()
@@ -204,6 +208,7 @@ def upload_video(
     enhance_titles: bool = Form(False),
     video_hint: str = Form("", description="Optional: describe what products are in the video"),
     db: Session = Depends(get_db),
+    current_user_id: str = Depends(verify_clerk_token),
 ):
     """Upload a video file for product extraction. Returns job_id immediately."""
     allowed = (".mp4", ".avi", ".mov", ".mkv", ".webm")
@@ -222,6 +227,7 @@ def upload_video(
     job = create_job(
         db,
         job_type="video_upload",
+        user_id=current_user_id,
         file_name=file.filename,
         enhance_titles=enhance_titles,
     )

@@ -289,6 +289,9 @@ cd product-intelligence-dashboard
 Create `backend/.env`:
 
 ```env
+# Required for Clerk Authentication (Backend)
+CLERK_SECRET_KEY=your_clerk_secret_key
+
 # Required for AI video extraction and title enhancement
 GROQ_API_KEY=your_groq_api_key
 GEMINI_API_KEY=your_gemini_api_key
@@ -332,10 +335,16 @@ uvicorn app.main:app --reload --port 8000
 
 **Frontend**
 
+Create `frontend/.env`:
+```env
+VITE_API_URL=http://localhost:8000
+VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+```
+
 ```bash
 cd frontend
 npm install
-VITE_API_URL=http://localhost:8000 npm run dev
+npm run dev
 # → http://localhost:5173
 ```
 
@@ -532,6 +541,27 @@ The seeded dataset (`POST /api/seed`) creates **25 products** (15 healthy, 5 med
 | `TELEGRAM_BOT_TOKEN` | Optional | Telegram bot token for external alerts |
 | `TELEGRAM_CHAT_ID` | Optional | Target chat ID for Telegram notifications |
 | `CORS_ORIGINS` | Optional | Comma-separated allowed origins (default: `*`) |
+
+---
+
+## Deployment Environment Variables
+
+When deploying the app to platforms like Vercel (Frontend), Railway, Render, or a VPS (Backend), ensure the following environment variables are set:
+
+### Frontend (Vercel)
+| Variable | Purpose | Example |
+|---|---|---|
+| `VITE_API_URL` | Points to your backend API URL | `https://your-backend.onrender.com` |
+| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk Auth publishable key | `pk_test_...` |
+
+### Backend (Railway / Render / VPS)
+| Variable | Purpose | Example |
+|---|---|---|
+| `CLERK_SECRET_KEY` | Clerk Auth secret key | `sk_test_...` |
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host/db?sslmode=require` |
+| `GROQ_API_KEY` | Groq API Key for Vision processing | `gsk_...` |
+| `GEMINI_API_KEY` | Gemini API Key for title enhancement | `AIzaSy...` |
+| `CORS_ORIGINS` | Allowed frontend origins | `https://your-frontend.vercel.app` |
 
 ---
 

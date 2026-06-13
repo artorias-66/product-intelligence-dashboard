@@ -7,6 +7,7 @@ from app.database import get_db
 from app.models import Product
 from app.schemas import EnhancedTitleResponse, EnhanceTitleRequest
 from app.services.title_enhancement import enhance_product_title
+from app.auth import verify_clerk_token
 
 router = APIRouter(tags=["Title Enhancement"])
 
@@ -16,9 +17,10 @@ def enhance_title(
     sku_id: str,
     request: EnhanceTitleRequest = None,
     db: Session = Depends(get_db),
+    current_user_id: str = Depends(verify_clerk_token),
 ):
     """Enhance a product title using Gemini AI with fallback."""
-    product = db.query(Product).filter(Product.sku_id == sku_id).first()
+    product = db.query(Product).filter(Product.sku_id == sku_id, Product.user_id == current_user_id).first()
     if not product:
         raise HTTPException(status_code=404, detail=f"Product with SKU '{sku_id}' not found.")
 

@@ -490,16 +490,17 @@ ENHANCED_TITLES_DATA = [
 ]
 
 
-def run_seed(db: Session) -> str:
+def run_seed(db: Session, user_id: str) -> str:
     """Run the complete seed process. Returns a status message."""
 
     # Check if data already exists
-    existing = db.query(Product).count()
+    existing = db.query(Product).filter(Product.user_id == user_id).count()
     if existing > 0:
-        return f"Database already has {existing} products. Use POST /api/reset first to clear data."
+        return f"Database already has {existing} products for this user. Clear data if you want a fresh seed."
 
     # ─── Create Jobs ────────────────────────────────────────────
     job1 = Job(
+        user_id=user_id,
         type="csv_upload",
         status="COMPLETED",
         progress=100,
@@ -513,6 +514,7 @@ def run_seed(db: Session) -> str:
     )
 
     job2 = Job(
+        user_id=user_id,
         type="csv_upload",
         status="COMPLETED",
         progress=100,
@@ -526,6 +528,7 @@ def run_seed(db: Session) -> str:
     )
 
     job3 = Job(
+        user_id=user_id,
         type="csv_upload",
         status="PARTIALLY_COMPLETED",
         progress=100,
@@ -546,19 +549,19 @@ def run_seed(db: Session) -> str:
     all_products = []
 
     for product_data in GOOD_PRODUCTS:
-        p = Product(job_id=job1.id, **product_data)
+        p = Product(user_id=user_id, job_id=job1.id, **product_data)
         db.add(p)
         db.flush()
         all_products.append(p)
 
     for product_data in MEDIUM_PRODUCTS:
-        p = Product(job_id=job2.id, **product_data)
+        p = Product(user_id=user_id, job_id=job2.id, **product_data)
         db.add(p)
         db.flush()
         all_products.append(p)
 
     for product_data in CRITICAL_PRODUCTS:
-        p = Product(job_id=job3.id, **product_data)
+        p = Product(user_id=user_id, job_id=job3.id, **product_data)
         db.add(p)
         db.flush()
         all_products.append(p)
@@ -656,6 +659,7 @@ def run_seed(db: Session) -> str:
         critical_types = {"missing_title", "invalid_price", "missing_image", "duplicate_sku", "mrp_less_than_price"}
         if any(i.issue_type in critical_types for i in high_issues):
             alert = Alert(
+                user_id=user_id,
                 product_id=p.id,
                 type="listing_issue",
                 severity="HIGH",
@@ -670,6 +674,7 @@ def run_seed(db: Session) -> str:
         improvement_types = {"short_title", "missing_brand", "missing_attributes", "broken_image_url"}
         if any(i.issue_type in improvement_types for i in medium_issues):
             alert = Alert(
+                user_id=user_id,
                 product_id=p.id,
                 type="listing_improvement",
                 severity="MEDIUM",
@@ -684,6 +689,7 @@ def run_seed(db: Session) -> str:
         minor_types = {"weak_description", "out_of_stock"}
         if any(i.issue_type in minor_types for i in low_issues):
             alert = Alert(
+                user_id=user_id,
                 product_id=p.id,
                 type="minor_issue",
                 severity="LOW",
@@ -704,6 +710,7 @@ def run_seed(db: Session) -> str:
                 if p.price > lowest * 1.10:
                     pct = round(((p.price - lowest) / lowest) * 100, 1)
                     alert = Alert(
+                        user_id=user_id,
                         product_id=p.id,
                         type="price_competitive",
                         severity="HIGH",

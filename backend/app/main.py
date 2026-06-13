@@ -92,13 +92,13 @@ def api_root():
 
 
 @app.post("/api/seed", response_model=MessageResponse, tags=["Admin"])
-def seed_database():
+def seed_database(current_user_id: str = Depends(verify_clerk_token)):
     """Seed the database with sample data."""
     from app.seed import run_seed
 
     db = SessionLocal()
     try:
-        result = run_seed(db)
+        result = run_seed(db, current_user_id)
         return MessageResponse(message=result)
     finally:
         db.close()

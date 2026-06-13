@@ -12,27 +12,38 @@ from app.schemas import (
     IssueTypeCount,
     QualityDistribution,
 )
+from app.auth import verify_clerk_token
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
 
 @router.get("/quality-summary", response_model=QualitySummaryResponse)
-def get_quality_summary(db: Session = Depends(get_db)):
+def get_quality_summary(db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Get aggregated quality summary for the dashboard."""
 
-    total_products = db.query(func.count(Product.id)).scalar() or 0
-    avg_score = db.query(func.avg(Product.quality_score)).scalar() or 0.0
+    total_products = db.query(func.count(Product.id)).filter(Product.user_id == current_user_id).scalar() or 0
+    avg_score = db.query(func.avg(Product.quality_score)).filter(Product.user_id == current_user_id).scalar() or 0.0
 
     # Products with at least one issue
     products_with_issues = (
-        db.query(func.count(func.distinct(ProductIssue.product_id))).scalar() or 0
+        db.query(func.count(func.distinct(ProductIssue.product_id)))
+        .join(Product)
+        .filter(Product.user_id == current_user_id)
+        .scalar() or 0
     )
 
-    total_issues = db.query(func.count(ProductIssue.id)).scalar() or 0
+    total_issues = (
+        db.query(func.count(ProductIssue.id))
+        .join(Product)
+        .filter(Product.user_id == current_user_id)
+        .scalar() or 0
+    )
 
     # Issues by severity
     severity_rows = (
         db.query(ProductIssue.severity, func.count(ProductIssue.id))
+        .join(Product)
+        .filter(Product.user_id == current_user_id)
         .group_by(ProductIssue.severity)
         .all()
     )
@@ -48,6 +59,8 @@ def get_quality_summary(db: Session = Depends(get_db)):
     # Issues by type
     type_rows = (
         db.query(ProductIssue.issue_type, func.count(ProductIssue.id))
+        .join(Product)
+        .filter(Product.user_id == current_user_id)
         .group_by(ProductIssue.issue_type)
         .order_by(func.count(ProductIssue.id).desc())
         .all()
@@ -68,7 +81,7 @@ def get_quality_summary(db: Session = Depends(get_db)):
     for label, low, high in ranges:
         cnt = (
             db.query(func.count(Product.id))
-            .filter(Product.quality_score >= low, Product.quality_score <= high)
+            .filter(Product.user_id == current_user_id, Product.quality_score >= low, Product.quality_score <= high)
             .scalar()
             or 0
         )
@@ -93,9 +106,9 @@ import io
 from fastapi import Response
 
 @router.get("/quality-report-csv")
-def download_quality_report_csv(db: Session = Depends(get_db)):
+def download_quality_report_csv(db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Generate a downloadable CSV report of all products and their quality scores."""
-    products = db.query(Product).order_by(Product.quality_score.asc()).all()
+    products = db.query(Product).filter(Product.user_id == current_user_id).order_by(Product.quality_score.asc()).all()
 
     output = io.StringIO()
     writer = csv.writer(output)

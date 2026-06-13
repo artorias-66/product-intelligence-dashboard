@@ -19,12 +19,14 @@ class JobStatus:
 def create_job(
     db: Session,
     job_type: str,
+    user_id: str,
     file_name: Optional[str] = None,
     enhance_titles: bool = False,
     total_products: int = 0,
 ) -> Job:
     """Create a new job in PENDING state."""
     job = Job(
+        user_id=user_id,
         type=job_type,
         status=JobStatus.PENDING,
         file_name=file_name,

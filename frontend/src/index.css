@@ -11,16 +11,20 @@
   --primary-glow: rgba(99, 102, 241, 0.35);
 
   /* Surfaces */
-  --bg: #0F1117;
-  --bg-elevated: #131620;
-  --surface: #1A1D27;
-  --surface-hover: #232736;
-  --surface-active: #2A2D3E;
-  --surface-glass: rgba(26, 29, 39, 0.65);
+  --bg: #090A0F;
+  --bg-elevated: rgba(15, 17, 26, 0.75);
+  --surface: rgba(22, 25, 37, 0.6);
+  --surface-hover: rgba(30, 34, 50, 0.8);
+  --surface-active: rgba(38, 43, 62, 0.9);
+  --surface-glass: rgba(26, 29, 39, 0.4);
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #6366F1 0%, #A855F7 100%);
+  --gradient-success: linear-gradient(135deg, #22C55E 0%, #10B981 100%);
 
   /* Borders */
-  --border: #2A2D3A;
-  --border-light: #353849;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-light: rgba(255, 255, 255, 0.12);
   --border-focus: #6366F1;
 
   /* Text */
@@ -104,9 +108,17 @@ html {
 body {
   font-family: var(--font);
   background: var(--bg);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.08), transparent 25%);
   color: var(--text-primary);
   line-height: 1.6;
   overflow: hidden;
+}
+
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: #fff;
 }
 
 #root {
@@ -179,6 +191,8 @@ input, select, textarea {
   width: var(--sidebar-width);
   height: 100vh;
   background: var(--bg-elevated);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -198,14 +212,14 @@ input, select, textarea {
 .sidebar-brand-icon {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, var(--primary), #8B5CF6);
+  background: var(--gradient-primary);
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   flex-shrink: 0;
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
 }
 
 .sidebar-brand-text {
@@ -487,14 +501,18 @@ input, select, textarea {
 /* ---------- Cards ---------- */
 .card {
   background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   transition: all var(--transition);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .card:hover {
   border-color: var(--border-light);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .card-glass {
@@ -533,6 +551,8 @@ input, select, textarea {
 
 .stat-card {
   background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: var(--space-5) var(--space-6);
@@ -542,6 +562,7 @@ input, select, textarea {
   transition: all var(--transition);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .stat-card::before {
@@ -650,14 +671,14 @@ input, select, textarea {
 }
 
 .btn-primary {
-  background: var(--primary);
+  background: var(--gradient-primary);
   color: white;
-  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.3);
+  border: none;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
 }
 .btn-primary:hover {
-  background: var(--primary-hover);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+  transform: translateY(-2px);
 }
 .btn-primary:active {
   transform: translateY(0);
@@ -806,7 +827,7 @@ input, select, textarea {
 .progress-bar-fill {
   height: 100%;
   border-radius: var(--radius-full);
-  background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+  background: var(--gradient-primary);
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;

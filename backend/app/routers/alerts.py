@@ -16,6 +16,7 @@ from app.schemas import (
     AlertMarkReadRequest,
     MessageResponse,
 )
+from app.auth import verify_clerk_token
 
 router = APIRouter(prefix="/alerts", tags=["Alerts"])
 
@@ -29,9 +30,10 @@ def list_alerts(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
+    current_user_id: str = Depends(verify_clerk_token),
 ):
     """List alerts with optional filtering."""
-    query = db.query(Alert)
+    query = db.query(Alert).filter(Alert.user_id == current_user_id)
 
     if severity:
         query = query.filter(Alert.severity == severity.upper())
@@ -46,7 +48,7 @@ def list_alerts(
     unread_count = query.filter(Alert.is_read == False).count()
 
     # Re-query without the unread filter for the full list
-    query = db.query(Alert)
+    query = db.query(Alert).filter(Alert.user_id == current_user_id)
     if severity:
         query = query.filter(Alert.severity == severity.upper())
     if alert_type:
@@ -66,14 +68,15 @@ def list_alerts(
 
 
 @router.post("/rules", response_model=AlertResponse)
-def create_alert_rule(rule: AlertRuleCreate, db: Session = Depends(get_db)):
+def create_alert_rule(rule: AlertRuleCreate, db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Create a manual alert/rule."""
     if rule.product_id:
-        product = db.query(Product).filter(Product.id == rule.product_id).first()
+        product = db.query(Product).filter(Product.id == rule.product_id, Product.user_id == current_user_id).first()
         if not product:
             raise HTTPException(status_code=404, detail="Product not found.")
 
     alert = Alert(
+        user_id=current_user_id,
         product_id=rule.product_id,
         type=rule.type,
         severity=rule.severity,
@@ -87,11 +90,11 @@ def create_alert_rule(rule: AlertRuleCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/mark-read", response_model=MessageResponse)
-def mark_alerts_read(request: AlertMarkReadRequest, db: Session = Depends(get_db)):
+def mark_alerts_read(request: AlertMarkReadRequest, db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Mark multiple alerts as read."""
     updated = (
         db.query(Alert)
-        .filter(Alert.id.in_(request.alert_ids))
+        .filter(Alert.id.in_(request.alert_ids), Alert.user_id == current_user_id)
         .update({Alert.is_read: True}, synchronize_session="fetch")
     )
     db.commit()
@@ -99,9 +102,9 @@ def mark_alerts_read(request: AlertMarkReadRequest, db: Session = Depends(get_db
 
 
 @router.put("/{alert_id}/read", response_model=AlertResponse)
-def mark_single_alert_read(alert_id: UUID, db: Session = Depends(get_db)):
+def mark_single_alert_read(alert_id: UUID, db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Mark a single alert as read."""
-    alert = db.query(Alert).filter(Alert.id == alert_id).first()
+    alert = db.query(Alert).filter(Alert.id == alert_id, Alert.user_id == current_user_id).first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found.")
     alert.is_read = True
@@ -111,9 +114,9 @@ def mark_single_alert_read(alert_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.delete("/{alert_id}", response_model=MessageResponse)
-def delete_alert(alert_id: UUID, db: Session = Depends(get_db)):
+def delete_alert(alert_id: UUID, db: Session = Depends(get_db), current_user_id: str = Depends(verify_clerk_token)):
     """Delete a single alert."""
-    alert = db.query(Alert).filter(Alert.id == alert_id).first()
+    alert = db.query(Alert).filter(Alert.id == alert_id, Alert.user_id == current_user_id).first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found.")
     db.delete(alert)
